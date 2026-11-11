@@ -1,7 +1,7 @@
 <?php
 /**
  * Animated logo intro shown before the website.
- * Plays once per browser session (add ?intro=1 to any URL to force it, e.g. for a presentation).
+ * Lasts about 8 seconds. Plays once per browser session (add ?intro=1 to any URL to force it, e.g. for a presentation).
  * Skipped automatically for visitors who prefer reduced motion.
  */
 $introWords = [['Siargao', false], ['Flora', true]];
@@ -55,14 +55,13 @@ $letter = 0;
     <span>9.85° N · 126.05° E</span>
   </div>
 
-  <button type="button" class="splash__skip" id="splashSkip">Skip <span>→</span></button>
 </div>
 
 <script>
   (function () {
     var d = document.documentElement, intro = document.getElementById('splash');
     if (!d.classList.contains('intro-on')) { intro.remove(); return; }
-    var done = false, start = Date.now(), MIN = 3100, MAX = 6000;
+    var done = false, start = Date.now(), MIN = 8000, MAX = 11000;
     function finish() {
       if (done) return; done = true;
       intro.classList.add('is-leaving');
@@ -72,7 +71,6 @@ $letter = 0;
     // wait for the intro to finish playing, and for the page to load (but never longer than MAX)
     window.addEventListener('load', function () { setTimeout(finish, Math.max(0, MIN - (Date.now() - start))); });
     setTimeout(finish, MAX);
-    document.getElementById('splashSkip').addEventListener('click', finish);
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') finish(); });
   })();
 </script>

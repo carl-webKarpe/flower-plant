@@ -28,6 +28,14 @@ window.LUNHAW_DATA = {
     { name: 'Shrub & Vine', blurb: 'Beach creepers and shrubs' },
   ],
 
+  // Field footage not tied to a single species (shown on the home page and in Gallery → Videos)
+  videos: [
+    {
+      src: 'garden-tour.mp4', poster: 'garden-tour.jpg', title: 'Garden tour',
+      description: 'Aglaonema, Dendrobium orchid, Dieffenbachia and sugarcane',
+    },
+  ],
+
   species: [
     {
       id: 'gumamela', local_name: 'Gumamela', common_name: 'Chinese hibiscus',

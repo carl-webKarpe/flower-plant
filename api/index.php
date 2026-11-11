@@ -19,6 +19,7 @@ run(function () {
             'DELETE api/species.php?id={slug}'        => 'Delete species (X-API-Key)',
             'GET    api/categories.php'               => 'Plant groups',
             'GET    api/municipalities.php'           => 'Municipalities',
+            'GET    api/videos.php'                   => 'All videos, incl. general field footage (?species=)',
         ],
     ]);
 });

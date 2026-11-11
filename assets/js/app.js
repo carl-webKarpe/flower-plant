@@ -87,17 +87,31 @@
     requestAnimationFrame(step);
   }
 
+  /** Stand-in "species" used for the artwork of videos that aren't tied to one species (e.g. a garden tour). */
+  const GENERAL = { id: 'field-footage', local_name: 'Field footage', scientific_name: '', category: 'Shrub & Vine', color: '#4f8a5c' };
+
+  /** Second line under a video title: the species, or the video's own description. */
+  const videoSubtitle = (sp, v) => (sp && sp !== GENERAL
+    ? `${esc(sp.local_name)} · <em>${esc(sp.scientific_name)}</em>`
+    : esc(v.description || 'Field footage'));
+
+  /** Cover image for a video: its poster photo if it has one, otherwise the species artwork. */
+  const videoCover = (sp, v, cls = 'vid__cover') => Art.svg(sp || GENERAL, { variant: 3, plain: true }) +
+    (v.poster ? `<img class="${cls}" src="${esc(videoSrc(v.poster))}" alt="" loading="lazy" onerror="this.remove()">` : '');
+
   /** A video block that tries the real clip and shows a friendly message if it isn't uploaded yet. */
   function videoBlock(sp, video) {
+    sp = sp || GENERAL;
     const yt = youtubeId(video.src || '');
     if (yt) {
       return `<div class="vid"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${esc(video.title)}" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe></div>`;
     }
     return `
       <div class="vid" data-src="${esc(videoSrc(video.src))}">
-        <div class="vid__poster">${Art.svg(sp, { variant: 3, plain: true })}
+        ${video.poster ? `<img class="vid__backdrop" src="${esc(videoSrc(video.poster))}" alt="" onerror="this.remove()">` : ''}
+        <div class="vid__poster">${videoCover(sp, video)}
           <button class="vid__play" type="button" aria-label="Play ${esc(video.title)}"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></button>
-          <div class="vid__meta"><b>${esc(video.title)}</b><span>${esc(sp.local_name)} · ${esc(sp.scientific_name)}</span></div>
+          <div class="vid__meta"><b>${esc(video.title)}</b><span>${videoSubtitle(sp, video)}</span></div>
         </div>
       </div>`;
   }
@@ -204,7 +218,7 @@
     }).join('');
 
     // videos
-    const vids = species.flatMap((sp) => (sp.videos || []).map((v) => ({ sp, v })));
+    const vids = (await API.getVideos()).map((v) => ({ sp: v.species || GENERAL, v }));
     const player = $('#videoPlayer'), vlist = $('#videoList');
     const play = (i) => {
       player.innerHTML = videoBlock(vids[i].sp, vids[i].v);
@@ -213,8 +227,8 @@
     };
     if (vids.length) {
       vlist.innerHTML = vids.map(({ sp, v }, i) => `<li><button type="button" data-i="${i}">
-          <span class="vl-thumb">${Art.svg(sp, { variant: 3, plain: true })}<i>▶</i></span>
-          <span class="vl-text"><b>${esc(v.title)}</b><small>${esc(sp.local_name)} · <em>${esc(sp.scientific_name)}</em></small></span>
+          <span class="vl-thumb">${videoCover(sp, v, 'vl-cover')}<i>▶</i></span>
+          <span class="vl-text"><b>${esc(v.title)}</b><small>${videoSubtitle(sp, v)}</small></span>
         </button></li>`).join('');
       $$('button', vlist).forEach((b) => b.addEventListener('click', () => play(Number(b.dataset.i))));
       play(0);
@@ -419,11 +433,11 @@
 
   /* ---------- GALLERY ---------- */
   async function gallery() {
-    const all = await API.getSpecies();
-    const items = all.flatMap((sp) => [
-      ...(sp.photos || []).map((p, i) => ({ type: 'photo', sp, p, i })),
-      ...(sp.videos || []).map((v) => ({ type: 'video', sp, v })),
-    ]);
+    const [all, videos] = await Promise.all([API.getSpecies(), API.getVideos()]);
+    const items = [
+      ...videos.map((v) => ({ type: 'video', sp: v.species || GENERAL, v })),
+      ...all.flatMap((sp) => (sp.photos || []).map((p, i) => ({ type: 'photo', sp, p, i }))),
+    ];
     const grid = $('#masonry');
     const lb = $('#lightbox'), stage = $('#lightboxStage'), cap = $('#lightboxCaption');
 
@@ -431,8 +445,8 @@
       const list = items.filter((it) => filter === 'all' || it.type === filter);
       grid.innerHTML = list.map((it, n) => `
         <button type="button" class="m-item reveal ${n % 4 === 1 ? 'tall' : ''}" data-n="${items.indexOf(it)}">
-          ${it.type === 'photo' ? media(it.sp, it.i, { plain: true }) : `<div class="media">${Art.svg(it.sp, { variant: 3, plain: true })}</div><span class="m-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`}
-          <span class="m-cap"><b>${esc(it.sp.local_name)}</b><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.v.title)}</span></span>
+          ${it.type === 'photo' ? media(it.sp, it.i, { plain: true }) : `<div class="media">${videoCover(it.sp, it.v, 'is-loaded')}</div><span class="m-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`}
+          <span class="m-cap"><b>${esc(it.sp === GENERAL ? it.v.title : it.sp.local_name)}</b><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.sp === GENERAL ? it.v.description || '' : it.v.title)}</span></span>
         </button>`).join('');
       $$('#mediaTabs button').forEach((c) => c.classList.toggle('is-active', c.dataset.media === filter));
       observeReveal(grid);
@@ -443,7 +457,9 @@
       const it = items[Number(b.dataset.n)];
       stage.innerHTML = it.type === 'photo' ? media(it.sp, it.i, { cls: 'media--contain', plain: true }) : videoBlock(it.sp, it.v);
       wireVideos(stage);
-      cap.innerHTML = `<div><b>${esc(it.sp.local_name)}</b> <i>${esc(it.sp.scientific_name)}</i><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.v.title)}</span></div><a href="${speciesUrl(it.sp)}" class="btn btn--accent btn--sm">View species →</a>`;
+      cap.innerHTML = it.sp === GENERAL
+        ? `<div><b>${esc(it.v.title)}</b><span>${esc(it.v.description || 'Field footage')}</span></div><a href="explore.php" class="btn btn--accent btn--sm">Browse species →</a>`
+        : `<div><b>${esc(it.sp.local_name)}</b> <i>${esc(it.sp.scientific_name)}</i><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.v.title)}</span></div><a href="${speciesUrl(it.sp)}" class="btn btn--accent btn--sm">View species →</a>`;
       lb.hidden = false; document.body.style.overflow = 'hidden';
     });
     const close = () => { lb.hidden = true; stage.innerHTML = ''; document.body.style.overflow = ''; };

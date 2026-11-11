@@ -7,6 +7,7 @@
  *   GET {API_BASE}/species.php?id=gumamela     → { "data": species }
  *   GET {API_BASE}/categories.php              → { "data": [ { name, blurb }, ... ] }
  *   GET {API_BASE}/municipalities.php          → { "data": [ "Dapa", ... ] }
+ *   GET {API_BASE}/videos.php                  → { "data": [ { src, title, description, poster, species|null }, ... ] }
  * A bare array/object (without the "data" wrapper) is also accepted.
  */
 window.SiargaoFloraAPI = (function () {
@@ -53,6 +54,16 @@ window.SiargaoFloraAPI = (function () {
         () => request('species.php', { id }),
         mock.species.find((s) => s.id === id) || null
       );
+    },
+
+    /** Every video: general field footage first, then each species' clips (with a short species summary). */
+    getVideos() {
+      const summary = (sp) => ({ id: sp.id, local_name: sp.local_name, scientific_name: sp.scientific_name, category: sp.category, color: sp.color });
+      const mockVideos = [
+        ...(mock.videos || []).map((v) => ({ ...v, species: null })),
+        ...mock.species.flatMap((sp) => (sp.videos || []).map((v) => ({ ...v, species: summary(sp) }))),
+      ];
+      return withFallback(() => request('videos.php'), mockVideos);
     },
 
     getCategories() {

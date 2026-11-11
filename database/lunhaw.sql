@@ -65,13 +65,17 @@ CREATE TABLE species_photos (
   CONSTRAINT fk_photo_species FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Videos: `src` is a file name in assets/videos/, a full URL, or a YouTube link
+-- Videos: `src` is a file name in assets/videos/, a full URL, or a YouTube link.
+-- species_id may be NULL for general field footage (e.g. a garden tour) not tied to one species.
+-- `poster` is an optional cover image file name in assets/videos/.
 CREATE TABLE species_videos (
-  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  species_id  INT UNSIGNED NOT NULL,
-  src         VARCHAR(255) NOT NULL,
-  title       VARCHAR(255) NULL,
-  sort_order  INT NOT NULL DEFAULT 0,
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  species_id   INT UNSIGNED NULL,
+  src          VARCHAR(255) NOT NULL,
+  title        VARCHAR(255) NULL,
+  description  VARCHAR(255) NULL,
+  poster       VARCHAR(255) NULL,
+  sort_order   INT NOT NULL DEFAULT 0,
   CONSTRAINT fk_video_species FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
@@ -186,3 +190,7 @@ INSERT INTO species_videos (species_id, src, title, sort_order) VALUES
   ((SELECT id FROM species WHERE slug = 'bakhaw'), 'bakhaw-boardwalk.mp4', 'Mangrove boardwalk, Del Carmen', 0),
   ((SELECT id FROM species WHERE slug = 'nipa'), 'nipa-river.mp4', 'Nipa along the river, San Benito', 0),
   ((SELECT id FROM species WHERE slug = 'lubi'), 'coconut-road.mp4', 'Coconut road drive', 0);
+
+-- General field footage (not tied to one species)
+INSERT INTO species_videos (species_id, src, title, description, poster, sort_order) VALUES
+  (NULL, 'garden-tour.mp4', 'Garden tour', 'Aglaonema, Dendrobium orchid, Dieffenbachia and sugarcane', 'garden-tour.jpg', 0);

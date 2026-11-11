@@ -687,3 +687,13 @@ h1, h2, h3, h4 { font-family: var(--font-display); color: var(--ink); margin: 0;
   .to-top { right: 14px; bottom: 14px; width: 46px; height: 46px; }
   .vine { width: 220px; }
 }
+
+/* ---------- video covers & portrait clips ---------- */
+.vid__cover, .vl-cover, .m-item .media img.is-loaded { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 1; }
+.vid__poster .vid__cover { z-index: 1; }
+.vid__poster .vid__play, .vid__poster .vid__meta { z-index: 3; }
+.vid__poster::after { z-index: 2; }
+.vid__backdrop { position: absolute; inset: -20px; width: calc(100% + 40px); height: calc(100% + 40px); object-fit: cover; filter: blur(22px) brightness(.55) saturate(1.2); }
+.vid video { object-fit: contain; z-index: 1; }
+.vl-thumb .vl-cover { z-index: 0; }
+.vl-thumb i { z-index: 1; }

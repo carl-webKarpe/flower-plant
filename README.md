@@ -41,6 +41,7 @@ Reading is public. Adding, editing and deleting require the header `X-API-Key` (
 | DELETE | `api/species.php?id={slug}` | Delete a species |
 | GET | `api/categories.php` | Plant groups with species counts |
 | GET | `api/municipalities.php` | Municipalities |
+| GET | `api/videos.php` | All videos, incl. general field footage (`?species=` optional) |
 
 Example create body (`category` and `municipalities` must match names already in the database):
 
@@ -65,6 +66,18 @@ You can test write requests with Postman or Thunder Client.
 `species_photos`, `species_videos`. See `database/lunhaw.sql`.
 
 ## Adding photos and videos
+
+**General field footage** (not tied to one species, e.g. the garden tour): put the file in `assets/videos/` and add a row
+to `species_videos` with `species_id = NULL`. An optional `poster` (cover image file name) and `description` are supported:
+
+```sql
+INSERT INTO lunhaw.species_videos (species_id, src, title, description, poster)
+VALUES (NULL, 'my-clip.mp4', 'Mangrove walk', 'Del Carmen boardwalk', 'my-clip.jpg');
+```
+
+If your database was created before this feature, run `database/update-01-general-videos.sql` once in Workbench.
+
+**Species photos and videos:**
 
 Put files in `assets/images/species/` and `assets/videos/`, then add a row to `species_photos` / `species_videos`
 with the file name as `src` (or use the API). A full URL or YouTube link also works. Until a photo exists,

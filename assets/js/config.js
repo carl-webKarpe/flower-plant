@@ -6,7 +6,7 @@
  *                   If a request fails it falls back to the sample data (and logs a warning).
  */
 window.LUNHAW_CONFIG = {
-  USE_API: false,
+  USE_API: true,
   API_BASE: 'api',          // e.g. 'api' → api/species.php, or 'http://localhost/flower-plant/api'
   SPECIES_IMAGE_DIR: 'assets/images/species/',
   VIDEO_DIR: 'assets/videos/',

@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="<?= asset('assets/css/style.css') ?>">
 </head>
 <body data-page="<?= htmlspecialchars($activePage) ?>">
+<?php include __DIR__ . '/intro.php'; ?>
 
 <header class="nav <?= $navLight ? 'nav--light' : '' ?>" id="nav">
   <div class="nav__inner">

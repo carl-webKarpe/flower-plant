@@ -689,3 +689,14 @@ h1, h2, h3, h4 { font-family: var(--font-display); color: var(--ink); margin: 0;
 .vid video { object-fit: contain; z-index: 1; }
 .vl-thumb .vl-cover { z-index: 0; }
 .vl-thumb i { z-index: 1; }
+
+/* "Tap for sound" button on autoplaying (muted) videos */
+.vid__unmute {
+  position: absolute; z-index: 4; top: 16px; right: 16px; display: inline-flex; align-items: center; gap: 8px;
+  height: 38px; padding: 0 14px; border-radius: 999px; font-size: .85rem; font-weight: 600;
+  color: var(--ink); background: var(--accent); box-shadow: 0 8px 24px -8px rgba(0, 0, 0, .5);
+  animation: unmuteIn .5s var(--ease) both;
+}
+.vid__unmute svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.vid__unmute:hover { background: var(--accent-600); }
+@keyframes unmuteIn { from { opacity: 0; transform: translateY(-6px); } }

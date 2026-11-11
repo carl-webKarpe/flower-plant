@@ -116,20 +116,69 @@
       </div>`;
   }
 
+  /**
+   * Start the real clip inside a .vid box (or return the one already there).
+   * muted: browsers only allow autoplay when muted, so scroll-autoplay starts silent with a "Tap for sound" button.
+   */
+  function startVideo(box, { muted = false, loop = true } = {}) {
+    const existing = box.querySelector('video');
+    if (existing) { if (!muted) existing.muted = false; existing.play()?.catch(() => {}); return existing; }
+    if (box.dataset.missing) return null;
+
+    const btn = box.querySelector('.vid__play');
+    const v = document.createElement('video');
+    v.src = box.dataset.src; v.controls = true; v.playsInline = true; v.loop = loop;
+    v.muted = muted; v.autoplay = true;
+    v.addEventListener('error', () => {
+      v.remove();
+      box.dataset.missing = '1';
+      box.querySelector('.vid__unmute')?.remove();
+      if (btn) btn.outerHTML = '<p class="vid__missing">This clip is still being uploaded from the field.</p>';
+    });
+    v.addEventListener('loadeddata', () => box.querySelector('.vid__poster')?.remove());
+    // remember when the visitor pauses on purpose, so scrolling back doesn't restart it
+    v.addEventListener('pause', () => { if (!box.dataset.autoPausing) box.dataset.userPaused = '1'; delete box.dataset.autoPausing; });
+    v.addEventListener('play', () => { delete box.dataset.userPaused; });
+    box.appendChild(v);
+
+    if (muted) {
+      const unmute = document.createElement('button');
+      unmute.type = 'button';
+      unmute.className = 'vid__unmute';
+      unmute.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m17 9 4 6m0-6-4 6"/></svg> Tap for sound';
+      unmute.addEventListener('click', () => { v.muted = false; v.play()?.catch(() => {}); unmute.remove(); });
+      v.addEventListener('volumechange', () => { if (!v.muted) unmute.remove(); });
+      box.appendChild(unmute);
+    }
+    v.play()?.catch(() => {});
+    return v;
+  }
+
   function wireVideos(root = document) {
     $$('.vid[data-src] .vid__play', root).forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const box = btn.closest('.vid');
-        const v = document.createElement('video');
-        v.src = box.dataset.src; v.controls = true; v.autoplay = true; v.playsInline = true;
-        v.addEventListener('error', () => {
-          v.remove();
-          btn.outerHTML = '<p class="vid__missing">This clip is still being uploaded from the field.</p>';
-        });
-        v.addEventListener('loadeddata', () => box.querySelector('.vid__poster')?.remove());
-        box.appendChild(v);
-      });
+      btn.addEventListener('click', () => startVideo(btn.closest('.vid')));
     });
+  }
+
+  /** Autoplay (muted, looping) videos when they scroll into view; pause them when they leave. */
+  const autoplayIO = 'IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ? new IntersectionObserver((entries) => {
+      entries.forEach(({ target: box, isIntersecting }) => {
+        const v = box.querySelector('video');
+        if (isIntersecting) {
+          if (box.dataset.userPaused) return;
+          if (v) v.play()?.catch(() => {}); else startVideo(box, { muted: true });
+        } else if (v && !v.paused) {
+          box.dataset.autoPausing = '1';
+          v.pause();
+        }
+      });
+    }, { threshold: 0.5 })
+    : null;
+
+  function autoplayOnScroll(root = document) {
+    if (!autoplayIO) return;
+    $$('.vid[data-src]', root).forEach((box) => autoplayIO.observe(box));
   }
 
   /* ---------- navigation ---------- */
@@ -220,9 +269,13 @@
     // videos
     const vids = (await API.getVideos()).map((v) => ({ sp: v.species || GENERAL, v }));
     const player = $('#videoPlayer'), vlist = $('#videoList');
-    const play = (i) => {
+    const play = (i, clicked = false) => {
       player.innerHTML = videoBlock(vids[i].sp, vids[i].v);
       wireVideos(player);
+      autoplayOnScroll(player);
+      // picked from the list = the visitor asked for it, so play right away with sound
+      const box = player.querySelector('.vid[data-src]');
+      if (clicked && box) startVideo(box);
       $$('li', vlist).forEach((li, j) => li.classList.toggle('is-active', i === j));
     };
     if (vids.length) {
@@ -230,7 +283,7 @@
           <span class="vl-thumb">${videoCover(sp, v, 'vl-cover')}<i>▶</i></span>
           <span class="vl-text"><b>${esc(v.title)}</b><small>${videoSubtitle(sp, v)}</small></span>
         </button></li>`).join('');
-      $$('button', vlist).forEach((b) => b.addEventListener('click', () => play(Number(b.dataset.i))));
+      $$('button', vlist).forEach((b) => b.addEventListener('click', () => play(Number(b.dataset.i), true)));
       play(0);
     } else {
       player.innerHTML = '<p class="muted-light">Field videos will appear here soon.</p>';
@@ -428,6 +481,7 @@
       $$('#thumbs button').forEach((x) => x.classList.toggle('is-active', x === b));
     });
     wireVideos(root);
+    autoplayOnScroll(root);
     observeReveal(root);
   }
 

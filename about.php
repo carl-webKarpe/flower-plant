@@ -1,5 +1,5 @@
 <?php
-  $pageTitle  = 'About — Lunhaw';
+  $pageTitle  = 'About — Siargao Flora';
   $activePage = 'about';
   $navLight   = true;
   include 'includes/header.php';
@@ -16,12 +16,12 @@
   <div class="container about-grid">
     <div class="about-art" id="aboutArt" aria-hidden="true"></div>
     <div class="prose">
-      <p class="lead">Lunhaw is a web-based information system documenting the flowers and plants of
+      <p class="lead">Siargao Flora is a web-based information system documenting the flowers and plants of
         Siargao Island, Surigao del Norte — developed as our final project for <strong>System Integration and Architecture</strong>.</p>
       <p>Siargao lies within the Siargao Island Protected Landscapes and Seascapes and is home to one of the
         largest mangrove forests in Mindanao. Beyond the surf breaks are coastal forests, wetlands and village
         gardens full of species many visitors never notice.</p>
-      <p>“Lunhaw” means <em>green</em> in Bisaya. The site is completely open — there is no login or account.
+      <p>The site is completely open — there is no login or account.
         Anyone can browse, search and view photos and videos of the species we have recorded.</p>
       <dl class="about-facts">
         <div><dt>Location</dt><dd>Siargao Island</dd></div>
@@ -54,7 +54,7 @@
     <div class="section__head">
       <div>
         <span class="kicker">System integration</span>
-        <h2 class="h2">The Lunhaw REST API</h2>
+        <h2 class="h2">The Siargao Flora REST API</h2>
       </div>
       <p class="section__note">The website never queries the database directly — it consumes our own REST API, which returns JSON.</p>
     </div>

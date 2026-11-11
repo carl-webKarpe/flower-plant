@@ -1,5 +1,5 @@
 /**
- * Lunhaw front-end configuration.
+ * Siargao Flora front-end configuration.
  *
  * USE_API = false → the site uses the sample records in data.js.
  * USE_API = true  → the site fetches JSON from the PHP REST API at API_BASE.

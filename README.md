@@ -1,4 +1,4 @@
-# Lunhaw — Flora of Siargao
+# Siargao Flora
 
 A free, open field guide to the flowers and plants of Siargao Island, Surigao del Norte.
 Final project for **System Integration and Architecture**: a MySQL database, a PHP REST API, and a website that

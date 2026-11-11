@@ -1,5 +1,5 @@
 <?php
-  $pageTitle  = 'Lunhaw — Flora of Siargao Island';
+  $pageTitle  = 'Siargao Flora — Flowers & Plants of Siargao Island';
   $activePage = 'home';
   include 'includes/header.php';
 ?>
@@ -60,12 +60,42 @@
   </div>
 </section>
 
+<!-- SCROLL MARQUEE -->
+<div class="marquee" aria-hidden="true">
+  <div class="marquee__row" data-marquee="-1">
+    <?php for ($r = 0; $r < 3; $r++): foreach (['Gumamela', 'Bakhaw', 'Sampaguita', 'Kalachuchi', 'Ilang-ilang', 'Waling-waling', 'Nipa', 'Lubi'] as $n): ?>
+      <span><?= $n ?></span><i>✦</i>
+    <?php endforeach; endfor; ?>
+  </div>
+  <div class="marquee__row marquee__row--alt" data-marquee="1">
+    <?php for ($r = 0; $r < 3; $r++): foreach (['Rhizophora apiculata', 'Hibiscus rosa-sinensis', 'Vanda sanderiana', 'Nypa fruticans', 'Cocos nucifera', 'Terminalia catappa'] as $n): ?>
+      <span><?= $n ?></span><i>✦</i>
+    <?php endforeach; endfor; ?>
+  </div>
+</div>
+
 <!-- INTRO / VALUE -->
 <section class="section">
   <div class="container intro">
     <div class="intro__head reveal">
-      <span class="kicker">Why Lunhaw</span>
+      <span class="kicker">Why Siargao Flora</span>
       <h2 class="h2">A field guide built from the ground up — literally.</h2>
+      <svg class="vine" id="vine" viewBox="0 0 320 380" aria-hidden="true">
+        <path class="vine__stem" d="M20 370 C 60 300, 10 250, 70 200 S 170 150, 150 100 S 220 30, 270 60" />
+        <g class="vine__leaf" data-at=".18" transform="translate(52 300) rotate(-30)"><path d="M0 0 C 14 -12, 34 -10, 44 0 C 34 10, 14 12, 0 0 Z"/></g>
+        <g class="vine__leaf" data-at=".32" transform="translate(48 232) rotate(200)"><path d="M0 0 C 14 -12, 34 -10, 44 0 C 34 10, 14 12, 0 0 Z"/></g>
+        <g class="vine__leaf" data-at=".48" transform="translate(118 175) rotate(-50)"><path d="M0 0 C 14 -12, 34 -10, 44 0 C 34 10, 14 12, 0 0 Z"/></g>
+        <g class="vine__leaf" data-at=".62" transform="translate(152 118) rotate(160)"><path d="M0 0 C 14 -12, 34 -10, 44 0 C 34 10, 14 12, 0 0 Z"/></g>
+        <g class="vine__leaf" data-at=".76" transform="translate(196 66) rotate(-70)"><path d="M0 0 C 14 -12, 34 -10, 44 0 C 34 10, 14 12, 0 0 Z"/></g>
+        <g class="vine__bloom" data-at=".92" transform="translate(270 60)">
+          <path d="M0 -4 C 10 -12, 10 -28, 0 -34 C -10 -28, -10 -12, 0 -4 Z" transform="rotate(0)"/>
+          <path d="M0 -4 C 10 -12, 10 -28, 0 -34 C -10 -28, -10 -12, 0 -4 Z" transform="rotate(72)"/>
+          <path d="M0 -4 C 10 -12, 10 -28, 0 -34 C -10 -28, -10 -12, 0 -4 Z" transform="rotate(144)"/>
+          <path d="M0 -4 C 10 -12, 10 -28, 0 -34 C -10 -28, -10 -12, 0 -4 Z" transform="rotate(216)"/>
+          <path d="M0 -4 C 10 -12, 10 -28, 0 -34 C -10 -28, -10 -12, 0 -4 Z" transform="rotate(288)"/>
+          <circle r="6"/>
+        </g>
+      </svg>
     </div>
     <div class="intro__body reveal">
       <p class="lead">Siargao is famous for its waves, but behind the shoreline are mangrove forests, coastal woodlands

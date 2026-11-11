@@ -1,5 +1,5 @@
 -- =========================================================
---  Lunhaw — Flora of Siargao · MySQL database
+--  Siargao Flora · MySQL database
 --  Run this whole script in MySQL Workbench (lightning-bolt "Execute" button).
 --  It creates the `lunhaw` database, all tables, and sample records.
 --  WARNING: re-running it drops and recreates the database.

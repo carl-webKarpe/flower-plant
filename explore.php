@@ -1,5 +1,5 @@
 <?php
-  $pageTitle  = 'Species directory — Lunhaw';
+  $pageTitle  = 'Species directory — Siargao Flora';
   $activePage = 'explore';
   $navLight   = true;
   include 'includes/header.php';

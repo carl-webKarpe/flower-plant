@@ -9,7 +9,7 @@
  *   GET {API_BASE}/municipalities.php          → { "data": [ "Dapa", ... ] }
  * A bare array/object (without the "data" wrapper) is also accepted.
  */
-window.LunhawAPI = (function () {
+window.SiargaoFloraAPI = (function () {
   const cfg = window.LUNHAW_CONFIG || {};
   const mock = window.LUNHAW_DATA;
   let source = cfg.USE_API ? 'api' : 'sample';
@@ -30,7 +30,7 @@ window.LunhawAPI = (function () {
       source = 'api';
       return data;
     } catch (err) {
-      console.warn('[Lunhaw] API unavailable, using sample data.', err);
+      console.warn('[Siargao Flora] API unavailable, using sample data.', err);
       source = 'sample';
       return clone(mockValue);
     }

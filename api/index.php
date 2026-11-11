@@ -7,7 +7,7 @@ require __DIR__ . '/db.php';
 run(function () {
     $count = (int) db()->query('SELECT COUNT(*) FROM species')->fetchColumn();
     respond([
-        'name'      => 'Lunhaw REST API',
+        'name'      => 'Siargao Flora REST API',
         'status'    => 'ok',
         'database'  => 'connected',
         'species'   => $count,

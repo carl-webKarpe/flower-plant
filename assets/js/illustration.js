@@ -2,7 +2,7 @@
  * Botanical placeholder art (line-art on a tinted gradient).
  * Shown until the team uploads real field photos, so the layout never displays a broken image.
  */
-window.LunhawArt = (function () {
+window.SiargaoFloraArt = (function () {
   function hash(str) {
     let h = 2166136261;
     for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }

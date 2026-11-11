@@ -1,8 +1,8 @@
-/* Lunhaw — front-end rendering. All data comes through window.LunhawAPI. */
+/* Siargao Flora — front-end rendering. All data comes through window.SiargaoFloraAPI. */
 (function () {
   const cfg = window.LUNHAW_CONFIG;
-  const API = window.LunhawAPI;
-  const Art = window.LunhawArt;
+  const API = window.SiargaoFloraAPI;
+  const Art = window.SiargaoFloraArt;
 
   /* ---------- helpers ---------- */
   const $ = (s, el = document) => el.querySelector(s);
@@ -248,7 +248,7 @@
       sort: params.get('sort') || 'name',
     };
     let view = 'grid';
-    try { view = localStorage.getItem('lunhaw-view') || 'grid'; } catch (e) { /* storage unavailable */ }
+    try { view = localStorage.getItem('siargao-flora-view') || 'grid'; } catch (e) { /* storage unavailable */ }
 
     const q = $('#q'), muni = $('#muni'), sort = $('#sort'), catList = $('#categoryList'), grid = $('#speciesGrid');
     q.value = state.q; sort.value = state.sort;
@@ -267,7 +267,7 @@
       view = v;
       grid.classList.toggle('is-list', v === 'list');
       $$('.view-toggle button').forEach((b) => b.classList.toggle('is-active', b.dataset.view === v));
-      try { localStorage.setItem('lunhaw-view', v); } catch (e) { /* ignore */ }
+      try { localStorage.setItem('siargao-flora-view', v); } catch (e) { /* ignore */ }
     }
 
     function render() {
@@ -343,7 +343,7 @@
       return;
     }
 
-    document.title = `${sp.local_name} (${sp.scientific_name}) — Lunhaw`;
+    document.title = `${sp.local_name} (${sp.scientific_name}) — Siargao Flora`;
     const photos = sp.photos && sp.photos.length ? sp.photos : [{ src: '', caption: '' }];
     const related = all.filter((s) => s.id !== sp.id && s.category === sp.category)
       .concat(all.filter((s) => s.id !== sp.id && s.category !== sp.category)).slice(0, 4);
@@ -471,6 +471,6 @@
     initNav();
     const pages = { home, explore, species, gallery, about };
     const fn = $('#speciesPage') ? species : pages[document.body.dataset.page];
-    if (fn) fn().catch((err) => console.error('[Lunhaw]', err));
+    if (fn) fn().catch((err) => console.error('[Siargao Flora]', err));
   });
 })();

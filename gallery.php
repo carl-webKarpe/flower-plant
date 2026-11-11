@@ -1,5 +1,5 @@
 <?php
-  $pageTitle  = 'Gallery — Lunhaw';
+  $pageTitle  = 'Gallery — Siargao Flora';
   $activePage = 'gallery';
   $navLight   = true;
   include 'includes/header.php';

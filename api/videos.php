@@ -10,8 +10,8 @@ require __DIR__ . '/db.php';
 run(function () {
     if ($_SERVER['REQUEST_METHOD'] !== 'GET') fail('Method not allowed.', 405);
 
-    $sql = 'SELECT v.src, v.title, v.description, v.poster,
-                   s.slug, s.local_name, s.scientific_name, s.color, c.name AS category
+    $sql = 'SELECT v.src, v.title, ' . video_extra_columns('v') . ','
+                   . ' s.slug, s.local_name, s.scientific_name, s.color, c.name AS category
               FROM species_videos v
               LEFT JOIN species s ON s.id = v.species_id
               LEFT JOIN categories c ON c.id = s.category_id';

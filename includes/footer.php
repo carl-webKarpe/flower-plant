@@ -38,11 +38,11 @@
   </div>
 </footer>
 
-<script src="assets/js/config.js"></script>
-<script src="assets/js/data.js"></script>
-<script src="assets/js/api.js"></script>
-<script src="assets/js/illustration.js"></script>
-<script src="assets/js/app.js"></script>
-<script src="assets/js/motion.js"></script>
+<script src="<?= asset('assets/js/config.js') ?>"></script>
+<script src="<?= asset('assets/js/data.js') ?>"></script>
+<script src="<?= asset('assets/js/api.js') ?>"></script>
+<script src="<?= asset('assets/js/illustration.js') ?>"></script>
+<script src="<?= asset('assets/js/app.js') ?>"></script>
+<script src="<?= asset('assets/js/motion.js') ?>"></script>
 </body>
 </html>

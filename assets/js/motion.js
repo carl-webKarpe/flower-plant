@@ -138,8 +138,11 @@
     if (heroBg && y < h * 1.2) {
       heroBg.style.transform = `translate3d(0, ${y * 0.35}px, 0) scale(${1.04 + y * 0.00012})`;
       if (heroInner) {
-        heroInner.style.transform = `translate3d(0, ${y * -0.12}px, 0)`;
-        heroInner.style.opacity = String(1 - clamp(y / (h * 0.75)) * 0.9);
+        heroInner.style.transform = `translate3d(0, ${y * -0.08}px, 0)`;
+        // stay fully visible; only fade while the text is actually leaving the top of the screen
+        const navBottom = 90;
+        const r = heroInner.getBoundingClientRect();
+        heroInner.style.opacity = String(clamp((r.bottom - navBottom) / Math.max(1, r.height * 0.35)));
       }
       if (leavesLayer) leavesLayer.style.transform = `translate3d(0, ${y * -0.25}px, 0)`;
     }

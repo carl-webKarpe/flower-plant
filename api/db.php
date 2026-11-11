@@ -80,3 +80,27 @@ function run(callable $handler): void
         fail('Database error.', 500, ['details' => $e->getMessage()]);
     }
 }
+
+/** True if a column exists (lets the API work before/after optional database updates). */
+function has_column(string $table, string $column): bool
+{
+    static $cache = [];
+    $key = "$table.$column";
+    if (!array_key_exists($key, $cache)) {
+        $st = db()->prepare('SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                              WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?');
+        $st->execute([$table, $column]);
+        $cache[$key] = (int) $st->fetchColumn() > 0;
+    }
+    return $cache[$key];
+}
+
+/** SELECT list for the optional video columns (NULL when update-01 hasn't been run yet). */
+function video_extra_columns(string $alias = ''): string
+{
+    $p = $alias ? "$alias." : '';
+    $desc = has_column('species_videos', 'description') ? "{$p}description" : 'NULL AS description';
+    $poster = has_column('species_videos', 'poster') ? "{$p}poster" : 'NULL AS poster';
+    return "$desc, $poster";
+}
+

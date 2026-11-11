@@ -47,7 +47,7 @@ function hydrate(array $rows): array
                        WHERE sm.species_id IN ($in) ORDER BY m.name");
     $photos = $group("SELECT species_id, src, caption FROM species_photos
                        WHERE species_id IN ($in) ORDER BY sort_order, id");
-    $videos = $group("SELECT species_id, src, title, description, poster FROM species_videos
+    $videos = $group("SELECT species_id, src, title, " . video_extra_columns() . " FROM species_videos
                        WHERE species_id IN ($in) ORDER BY sort_order, id");
 
     return array_map(function ($r) use ($munis, $photos, $videos) {
@@ -128,10 +128,15 @@ function save_relations(int $pk, array $in): void
     }
     if (array_key_exists('videos', $in)) {
         $pdo->prepare('DELETE FROM species_videos WHERE species_id = ?')->execute([$pk]);
-        $ins = $pdo->prepare('INSERT INTO species_videos (species_id, src, title, description, poster, sort_order) VALUES (?, ?, ?, ?, ?, ?)');
+        $extra = has_column('species_videos', 'poster');
+        $ins = $extra
+            ? $pdo->prepare('INSERT INTO species_videos (species_id, src, title, description, poster, sort_order) VALUES (?, ?, ?, ?, ?, ?)')
+            : $pdo->prepare('INSERT INTO species_videos (species_id, src, title, sort_order) VALUES (?, ?, ?, ?)');
         foreach (array_values((array) $in['videos']) as $i => $v) {
             if (empty($v['src'])) continue;
-            $ins->execute([$pk, $v['src'], $v['title'] ?? null, $v['description'] ?? null, $v['poster'] ?? null, $i]);
+            $ins->execute($extra
+                ? [$pk, $v['src'], $v['title'] ?? null, $v['description'] ?? null, $v['poster'] ?? null, $i]
+                : [$pk, $v['src'], $v['title'] ?? null, $i]);
         }
     }
 }

@@ -3,6 +3,13 @@
   $pageTitle  = $pageTitle  ?? 'Siargao Flora';
   $activePage = $activePage ?? 'home';
   $navLight   = $navLight   ?? false; // true on pages without a dark hero
+  // Adds ?v=<last modified time> so browsers always load the newest file after an update.
+  if (!function_exists('asset')) {
+    function asset(string $path): string {
+      $file = __DIR__ . '/../' . $path;
+      return $path . (is_file($file) ? '?v=' . filemtime($file) : '');
+    }
+  }
   $nav = [
     'home'    => ['Home', 'index.php'],
     'explore' => ['Species', 'explore.php'],
@@ -22,7 +29,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="<?= asset('assets/css/style.css') ?>">
 </head>
 <body data-page="<?= htmlspecialchars($activePage) ?>">
 

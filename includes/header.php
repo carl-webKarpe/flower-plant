@@ -1,11 +1,11 @@
 <?php
-  // Shared <head> + navigation. Each page sets $pageTitle and $activePage before including.
+  // Shared <head> + navigation. Each page sets $pageTitle, $activePage and optionally $navLight before including.
   $pageTitle  = $pageTitle  ?? 'Lunhaw — Flora of Siargao';
   $activePage = $activePage ?? 'home';
   $navLight   = $navLight   ?? false; // true on pages without a dark hero
   $nav = [
     'home'    => ['Home', 'index.php'],
-    'explore' => ['Explore', 'explore.php'],
+    'explore' => ['Species', 'explore.php'],
     'gallery' => ['Gallery', 'gallery.php'],
     'about'   => ['About', 'about.php'],
   ];
@@ -17,9 +17,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= htmlspecialchars($pageTitle) ?></title>
   <meta name="description" content="Lunhaw is a free, open field guide to the flowers and plants of Siargao Island, Surigao del Norte.">
+  <meta name="theme-color" content="#0c1c14">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230c1c14'/%3E%3Cpath d='M16 26c0-8 1-12 7-17-1 8-3 12-7 17z' fill='%23c6f36b'/%3E%3Cpath d='M16 26c0-6-1-10-7-14 0 7 3 11 7 14z' fill='%23c6f36b' opacity='.6'/%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Manrope:wght@300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body data-page="<?= htmlspecialchars($activePage) ?>">
@@ -28,9 +30,9 @@
   <div class="nav__inner">
     <a href="index.php" class="brand" aria-label="Lunhaw home">
       <span class="brand__mark" aria-hidden="true">
-        <svg viewBox="0 0 32 32"><path d="M16 29c0-9 0-14 8-21-1 9-3 14-8 21z"/><path d="M16 29c0-7-1-12-8-17 0 8 3 13 8 17z" opacity=".7"/><circle cx="16" cy="7" r="3.2"/></svg>
+        <svg viewBox="0 0 32 32"><path d="M16 27c0-8 1-12 7-17-1 8-3 12-7 17z"/><path d="M16 27c0-6-1-10-7-14 0 7 3 11 7 14z" opacity=".6"/></svg>
       </span>
-      <span class="brand__text">Lunhaw<small>Flora of Siargao</small></span>
+      <span class="brand__text">Lunhaw</span>
     </a>
 
     <nav class="nav__links" id="navLinks" aria-label="Primary">
@@ -42,8 +44,10 @@
     <div class="nav__actions">
       <form class="nav__search" action="explore.php" method="get" role="search">
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
-        <input type="search" name="q" placeholder="Search species…" aria-label="Search species">
+        <input type="search" name="q" placeholder="Search species" aria-label="Search species">
+        <kbd>/</kbd>
       </form>
+      <a href="explore.php" class="btn btn--accent btn--sm nav__cta">Browse flora</a>
       <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
         <span></span><span></span>
       </button>

@@ -1,7 +1,6 @@
 /**
- * Botanical placeholder art.
- * Until the team uploads real field photos, every species gets a generated
- * "herbarium plate" drawn in its own colour, so the layout never shows a broken image.
+ * Botanical placeholder art (line-art on a tinted gradient).
+ * Shown until the team uploads real field photos, so the layout never displays a broken image.
  */
 window.LunhawArt = (function () {
   function hash(str) {
@@ -18,101 +17,99 @@ window.LunhawArt = (function () {
     const a = p(hex), b = p(target);
     return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * amt).toString(16).padStart(2, '0')).join('');
   }
-  const LEAF = '#2f5a35';
-  const INK = '#13261b';
+  const BASE = '#0c1c14';
+  const L = 'stroke="#fff" stroke-opacity=".9" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"';
 
-  const leaf = (x, y, len, rot, fill) =>
-    `<path transform="translate(${x} ${y}) rotate(${rot})" d="M0 0 C ${len * 0.35} ${-len * 0.28}, ${len * 0.75} ${-len * 0.22}, ${len} 0 C ${len * 0.75} ${len * 0.22}, ${len * 0.35} ${len * 0.28}, 0 0 Z" fill="${fill}"/>`;
+  const leafPath = (len) =>
+    `M0 0 C ${len * 0.35} ${-len * 0.3}, ${len * 0.75} ${-len * 0.24}, ${len} 0 C ${len * 0.75} ${len * 0.24}, ${len * 0.35} ${len * 0.3}, 0 0 Z M0 0 L ${len * 0.92} 0`;
+  const leaf = (x, y, len, rot, tint) =>
+    `<path transform="translate(${x} ${y}) rotate(${rot})" d="${leafPath(len)}" ${L} ${tint ? `style="fill:${tint}"` : ''}/>`;
 
   function flower(c, r) {
-    const n = 5 + Math.floor(r() * 3);
+    const n = 5 + Math.floor(r() * 2);
     let petals = '';
     for (let i = 0; i < n; i++) {
-      const a = (360 / n) * i + r() * 8;
-      petals += `<ellipse cx="0" cy="-30" rx="17" ry="32" fill="${i % 2 ? c : mix(c, '#ffffff', 0.12)}" transform="rotate(${a})"/>`;
+      const a = (360 / n) * i;
+      petals += `<path transform="rotate(${a})" d="M0 -6 C 16 -20, 16 -48, 0 -60 C -16 -48, -16 -20, 0 -6 Z" ${L} style="fill:${c};fill-opacity:.35"/>`;
     }
-    return `
-      <path d="M100 250 C 98 200, 104 170, 100 120" stroke="${LEAF}" stroke-width="4" fill="none"/>
-      ${leaf(100, 200, 62, -35, LEAF)}${leaf(100, 178, 52, -150, mix(LEAF, '#ffffff', 0.15))}
-      <g transform="translate(100 100)">${petals}
-        <circle r="14" fill="${mix(c, '#f6d36b', 0.6)}"/><circle r="6" fill="${mix(c, INK, 0.4)}"/>
+    return `<path d="M100 250 C 98 210, 104 180, 100 135" ${L}/>
+      ${leaf(100, 210, 58, -38, 'rgba(255,255,255,.06)')}${leaf(100, 188, 48, -145, 'rgba(255,255,255,.06)')}
+      <g transform="translate(100 110)">${petals}
+        <circle r="9" ${L} style="fill:${c};fill-opacity:.6"/>
+        ${Array.from({ length: 8 }, (_, i) => `<circle cx="${Math.cos(i * 0.785) * 14}" cy="${Math.sin(i * 0.785) * 14}" r="1.4" fill="#fff"/>`).join('')}
       </g>`;
   }
 
   function orchid(c) {
-    const pet = (rot, rx, ry, f) => `<ellipse cx="0" cy="-34" rx="${rx}" ry="${ry}" fill="${f}" transform="rotate(${rot})"/>`;
-    return `
-      <path d="M40 30 C 80 60, 120 60, 160 30" stroke="${mix(LEAF, '#8a6a3a', 0.5)}" stroke-width="7" fill="none" stroke-linecap="round"/>
-      ${leaf(150, 210, 60, -165, LEAF)}${leaf(50, 220, 60, -20, LEAF)}
-      <g transform="translate(100 120)">
-        ${pet(0, 18, 34, c)}${pet(72, 20, 36, mix(c, '#ffffff', 0.15))}${pet(-72, 20, 36, mix(c, '#ffffff', 0.15))}
-        ${pet(144, 18, 34, c)}${pet(-144, 18, 34, c)}
-        <path d="M-14 6 C -14 40, 14 40, 14 6 Z" fill="${mix(c, INK, 0.35)}"/>
-        <circle r="8" fill="#f8f1e2"/>
+    const pet = (rot, w, h) => `<path transform="rotate(${rot})" d="M0 -4 C ${w} -14, ${w} -${h - 8}, 0 -${h} C -${w} -${h - 8}, -${w} -14, 0 -4 Z" ${L} style="fill:${c};fill-opacity:.35"/>`;
+    return `<path d="M30 40 C 80 70, 120 70, 170 38" ${L}/>
+      <path d="M100 66 C 100 80, 100 90, 100 95" ${L}/>
+      ${leaf(160, 220, 64, -160, 'rgba(255,255,255,.06)')}${leaf(40, 225, 64, -22, 'rgba(255,255,255,.06)')}
+      <g transform="translate(100 135)">
+        ${pet(0, 16, 50)}${pet(72, 19, 54)}${pet(-72, 19, 54)}${pet(144, 15, 46)}${pet(-144, 15, 46)}
+        <path d="M-12 6 C -14 34, 14 34, 12 6 Z" ${L} style="fill:${c};fill-opacity:.7"/>
       </g>`;
   }
 
   function tree(c, r) {
-    let blobs = '';
-    for (let i = 0; i < 7; i++) {
-      const x = 55 + r() * 90, y = 60 + r() * 70, rad = 26 + r() * 22;
-      blobs += `<circle cx="${x}" cy="${y}" r="${rad}" fill="${i % 2 ? LEAF : mix(LEAF, '#ffffff', 0.12)}"/>`;
-    }
+    let canopy = '';
+    for (let i = 0; i < 6; i++) canopy += `<circle cx="${60 + r() * 80}" cy="${70 + r() * 55}" r="${26 + r() * 16}" ${L} style="fill:${c};fill-opacity:.12"/>`;
     let dots = '';
-    for (let i = 0; i < 14; i++) dots += `<circle cx="${50 + r() * 100}" cy="${50 + r() * 90}" r="${3 + r() * 4}" fill="${c}"/>`;
-    return `<path d="M94 250 L96 140 L104 140 L106 250 Z" fill="${mix(LEAF, '#6b4a2b', 0.7)}"/>
-      <path d="M100 170 L70 140 M100 160 L132 132" stroke="${mix(LEAF, '#6b4a2b', 0.7)}" stroke-width="5"/>
-      ${blobs}${dots}`;
+    for (let i = 0; i < 12; i++) dots += `<circle cx="${50 + r() * 100}" cy="${50 + r() * 90}" r="2" fill="#fff" fill-opacity=".8"/>`;
+    return `<path d="M100 240 L100 140 M100 175 L74 148 M100 165 L128 138" ${L}/>
+      <path d="M70 240 H130" ${L}/>${canopy}${dots}`;
   }
 
   function palm(c, r) {
     let fronds = '';
-    for (let i = 0; i < 9; i++) {
-      const a = -170 + i * 20 + r() * 6;
-      fronds += leaf(100, 70, 78 + r() * 18, a, i % 2 ? c : mix(c, INK, 0.25));
-    }
-    return `<path d="M100 250 C 92 190, 112 130, 100 72" stroke="${mix(c, '#7a5a35', 0.6)}" stroke-width="9" fill="none" stroke-linecap="round"/>
-      ${fronds}<circle cx="96" cy="80" r="7" fill="#6b4a2b"/><circle cx="106" cy="82" r="7" fill="#7a5a35"/>`;
+    for (let i = 0; i < 9; i++) fronds += leaf(100, 74, 74 + r() * 16, -170 + i * 20, `${c}33`);
+    return `<path d="M100 245 C 92 190, 110 130, 100 76" ${L}/>
+      ${[0, 1, 2, 3, 4, 5].map((i) => `<path d="M${96 - i * 0.6} ${230 - i * 26} h ${9 + i * 0.4}" ${L} stroke-opacity=".5"/>`).join('')}
+      ${fronds}<circle cx="95" cy="84" r="6" ${L}/><circle cx="106" cy="86" r="6" ${L}/>`;
   }
 
   function mangrove(c, r) {
     let roots = '';
     for (let i = 0; i < 7; i++) {
-      const x = 40 + i * 20 + r() * 6;
-      roots += `<path d="M100 150 C ${x} 170, ${x} 200, ${x + (r() - 0.5) * 10} 232" stroke="#6b4a2b" stroke-width="4" fill="none"/>`;
+      const x = 42 + i * 19 + r() * 4;
+      roots += `<path d="M100 150 C ${x} 168, ${x} 196, ${x} 224" ${L}/>`;
     }
-    return `<rect x="0" y="210" width="200" height="40" fill="${mix(c, '#7fb0b8', 0.6)}" opacity=".55"/>
-      ${roots}<path d="M98 150 L100 100 L102 150 Z" fill="#6b4a2b"/>
-      <ellipse cx="100" cy="88" rx="70" ry="44" fill="${c}"/>
-      <ellipse cx="70" cy="80" rx="34" ry="26" fill="${mix(c, '#ffffff', 0.15)}"/>
-      <ellipse cx="130" cy="76" rx="32" ry="24" fill="${mix(c, INK, 0.2)}"/>`;
+    const water = [0, 1, 2].map((i) => `<path d="M${20 + i * 12} ${228 + i * 8} q 10 -4 20 0 t 20 0 t 20 0 t 20 0 t 20 0 t 20 0 t 20 0" ${L} stroke-opacity=".45"/>`).join('');
+    return `${roots}<path d="M100 150 V 108" ${L}/>
+      <path d="M38 96 C 30 60, 80 40, 100 52 C 120 36, 174 52, 164 92 C 176 120, 120 128, 100 116 C 80 130, 26 124, 38 96 Z" ${L} style="fill:${c};fill-opacity:.25"/>
+      ${water}`;
   }
 
   function vine(c, r) {
     let leaves = '';
-    for (let i = 0; i < 8; i++) {
-      const t = i / 7, x = 30 + t * 140, y = 200 - Math.sin(t * Math.PI) * 120;
-      leaves += leaf(x, y, 34, (i % 2 ? -60 : 120) + r() * 20, i % 2 ? LEAF : mix(LEAF, '#ffffff', 0.15));
+    for (let i = 0; i < 7; i++) {
+      const t = i / 6, x = 30 + t * 140, y = 205 - Math.sin(t * Math.PI) * 120;
+      leaves += leaf(x, y, 30, (i % 2 ? -60 : 120) + r() * 20, 'rgba(255,255,255,.06)');
     }
-    const bloom = (x, y) => `<g transform="translate(${x} ${y})"><circle r="16" fill="${c}"/><circle r="9" fill="${mix(c, '#ffffff', 0.35)}"/><circle r="4" fill="${mix(c, INK, 0.4)}"/></g>`;
-    return `<path d="M30 200 Q 100 -40, 170 200" stroke="${LEAF}" stroke-width="3" fill="none"/>${leaves}
-      ${bloom(70, 112)}${bloom(128, 100)}${bloom(100, 72)}`;
+    const bloom = (x, y) => `<g transform="translate(${x} ${y})">
+      <circle r="16" ${L} style="fill:${c};fill-opacity:.35"/>
+      ${[0, 72, 144, 216, 288].map((a) => `<path transform="rotate(${a})" d="M0 0 L0 -15" ${L} stroke-opacity=".6"/>`).join('')}
+      <circle r="3.5" fill="#fff"/></g>`;
+    return `<path d="M30 205 Q 100 -35, 170 205" ${L}/>${leaves}${bloom(68, 116)}${bloom(132, 104)}${bloom(100, 74)}`;
   }
 
   const drawers = { Flower: flower, Orchid: orchid, Tree: tree, Palm: palm, Mangrove: mangrove, 'Shrub & Vine': vine };
 
-  /** Returns an SVG string for a species (or any {id, color, category}). */
+  /** Returns an SVG string for a species (or any object with id, color, category). */
   function svg(sp, opts = {}) {
     const c = sp.color && /^#[0-9a-f]{6}$/i.test(sp.color) ? sp.color : '#5b8a4a';
-    // very light colours (white flowers) need a darker backdrop to read
-    const light = parseInt(c.slice(1, 3), 16) + parseInt(c.slice(3, 5), 16) + parseInt(c.slice(5, 7), 16) > 600;
-    const bg = opts.bg || (light ? mix('#2b4a33', c, 0.15) : mix(c, '#f3efe4', 0.82));
     const r = rng(hash(sp.id || 'x') + (opts.variant || 0) * 97);
+    const top = mix(c, BASE, 0.62), bottom = mix(c, BASE, 0.86);
+    const uid = 'g' + hash((sp.id || 'x') + (opts.variant || 0)).toString(36);
     const draw = drawers[sp.category] || flower;
-    const grid = opts.plain ? '' :
-      `<g stroke="${light ? '#ffffff' : INK}" stroke-opacity=".07">${[50, 100, 150].map((v) => `<path d="M${v} 0V250M0 ${v}H200"/>`).join('')}</g>`;
-    return `<svg class="art" viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of ${sp.local_name || ''}">
-      <rect width="200" height="250" fill="${bg}"/>${grid}${draw(c, r)}</svg>`;
+    const grid = opts.plain ? '' : `<g stroke="#fff" stroke-opacity=".05">${[40, 80, 120, 160].map((v) => `<path d="M${v} 0V250"/>`).join('')}${[50, 100, 150, 200].map((v) => `<path d="M0 ${v}H200"/>`).join('')}</g>`;
+    return `<svg class="art" viewBox="0 0 200 250" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Illustration of ${sp.local_name || 'plant'}">
+      <defs>
+        <linearGradient id="${uid}l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${top}"/><stop offset="1" stop-color="${bottom}"/></linearGradient>
+        <radialGradient id="${uid}r" cx=".5" cy=".42" r=".55"><stop offset="0" stop-color="${c}" stop-opacity=".45"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="200" height="250" fill="url(#${uid}l)"/><rect width="200" height="250" fill="url(#${uid}r)"/>
+      ${grid}${draw(c, r)}</svg>`;
   }
 
   return { svg };

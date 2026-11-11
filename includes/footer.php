@@ -2,28 +2,38 @@
   <div class="container">
     <div class="footer__top">
       <div class="footer__brand">
-        <p class="footer__big">Lunhaw<span>.</span></p>
-        <p class="muted">“Lunhaw” means <em>green</em> in Bisaya. A free, open field guide to the flowers and plants of Siargao Island, Surigao del Norte — no account needed.</p>
+        <a href="index.php" class="brand brand--footer">
+          <span class="brand__mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M16 27c0-8 1-12 7-17-1 8-3 12-7 17z"/><path d="M16 27c0-6-1-10-7-14 0 7 3 11 7 14z" opacity=".6"/></svg></span>
+          <span class="brand__text">Lunhaw</span>
+        </a>
+        <p>An open field guide to the flowers and plants of Siargao Island, Surigao del Norte. Free to use — no account needed.</p>
+        <form class="footer__search" action="explore.php" method="get">
+          <input type="search" name="q" placeholder="Search a species…" aria-label="Search species">
+          <button type="submit" aria-label="Search">→</button>
+        </form>
       </div>
-      <div class="footer__cols">
-        <div>
-          <h4>Browse</h4>
-          <a href="explore.php">All species</a>
-          <a href="explore.php?category=Flower">Flowers</a>
-          <a href="explore.php?category=Mangrove">Mangroves</a>
-          <a href="gallery.php">Photos &amp; videos</a>
-        </div>
-        <div>
-          <h4>Project</h4>
-          <a href="about.php">About</a>
-          <a href="about.php#api">REST API</a>
-          <a href="about.php#method">Data gathering</a>
-        </div>
+      <div class="footer__col">
+        <h4>Explore</h4>
+        <a href="explore.php">All species</a>
+        <a href="explore.php?category=Flower">Flowers</a>
+        <a href="explore.php?category=Tree">Trees</a>
+        <a href="explore.php?category=Mangrove">Mangroves</a>
+      </div>
+      <div class="footer__col">
+        <h4>Media</h4>
+        <a href="gallery.php">Photo gallery</a>
+        <a href="gallery.php?type=video">Field videos</a>
+      </div>
+      <div class="footer__col">
+        <h4>Project</h4>
+        <a href="about.php">About Lunhaw</a>
+        <a href="about.php#method">Data gathering</a>
+        <a href="about.php#api">REST API</a>
       </div>
     </div>
     <div class="footer__bottom">
       <span>© <?= date('Y') ?> Lunhaw · System Integration &amp; Architecture Final Project</span>
-      <span class="coords">9.8482° N · 126.0458° E</span>
+      <span>Siargao Island, Surigao del Norte, Philippines</span>
     </div>
   </div>
 </footer>

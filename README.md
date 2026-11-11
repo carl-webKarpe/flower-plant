@@ -19,7 +19,7 @@ Then open http://localhost:8000 (or drop the folder into XAMPP's `htdocs`).
 | Page | File |
 |---|---|
 | Home (hero, featured species, groups, videos, municipalities) | `index.php` |
-| Explore / search & filter | `explore.php` |
+| Species directory (search, sidebar filters, grid/list view) | `explore.php` |
 | Species detail | `species.php?id={slug}` |
 | Photos & videos | `gallery.php` |
 | About + API documentation | `about.php` |

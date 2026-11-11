@@ -87,7 +87,7 @@
   }
 
   /* ---------- registry of scroll-linked elements ---------- */
-  let parallax = [], scalers = [], marquees = [], vine = null, heroBg = null, heroInner = null;
+  let parallax = [], scalers = [], vine = null, heroBg = null, heroInner = null;
   const io = new IntersectionObserver((entries) => {
     entries.forEach((en) => {
       if (en.isIntersecting) { en.target.classList.add('in-view'); io.unobserve(en.target); }
@@ -108,7 +108,6 @@
 
     parallax = $$('.bento__item .media, .about-art .media, .detail__main .media');
     scalers = $$('.video-player, .cta, .detail-videos');
-    marquees = $$('[data-marquee]');
     vine = $('#vine');
     heroBg = $('.hero__bg');
     heroInner = $('.hero__inner');
@@ -146,16 +145,6 @@
       }
       if (leavesLayer) leavesLayer.style.transform = `translate3d(0, ${y * -0.25}px, 0)`;
     }
-
-    // marquee rows slide in opposite directions with scroll
-    marquees.forEach((row) => {
-      const rect = row.getBoundingClientRect();
-      if (rect.bottom < -200 || rect.top > h + 200) return;
-      const dir = Number(row.dataset.marquee);
-      const offset = (h - rect.top) * 0.45;
-      const third = row.scrollWidth / 3;
-      row.style.transform = `translate3d(${dir < 0 ? -offset : offset - third}px, 0, 0)`;
-    });
 
     // vine draws itself, then leaves and the flower pop in
     if (vine) {

@@ -60,20 +60,6 @@
   </div>
 </section>
 
-<!-- SCROLL MARQUEE -->
-<div class="marquee" aria-hidden="true">
-  <div class="marquee__row" data-marquee="-1">
-    <?php for ($r = 0; $r < 3; $r++): foreach (['Gumamela', 'Bakhaw', 'Sampaguita', 'Kalachuchi', 'Ilang-ilang', 'Waling-waling', 'Nipa', 'Lubi'] as $n): ?>
-      <span><?= $n ?></span><i>✦</i>
-    <?php endforeach; endfor; ?>
-  </div>
-  <div class="marquee__row marquee__row--alt" data-marquee="1">
-    <?php for ($r = 0; $r < 3; $r++): foreach (['Rhizophora apiculata', 'Hibiscus rosa-sinensis', 'Vanda sanderiana', 'Nypa fruticans', 'Cocos nucifera', 'Terminalia catappa'] as $n): ?>
-      <span><?= $n ?></span><i>✦</i>
-    <?php endforeach; endfor; ?>
-  </div>
-</div>
-
 <!-- INTRO / VALUE -->
 <section class="section">
   <div class="container intro">

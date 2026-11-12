@@ -493,12 +493,66 @@
       ...all.flatMap((sp) => (sp.photos || []).map((p, i) => ({ type: 'photo', sp, p, i }))),
     ];
     const grid = $('#masonry');
-    const lb = $('#lightbox'), stage = $('#lightboxStage'), cap = $('#lightboxCaption');
+    const lb = $('#lightbox'), stage = $('#lightboxStage'), info = $('#lightboxInfo');
+    const fullSpecies = (sp) => all.find((s) => s.id === sp.id) || sp;
+    let list = [], current = 0;
+
+    /** Right-hand (or lower, on phones) information panel for one gallery item. */
+    function infoPanel(it) {
+      if (it.sp === GENERAL) {
+        return `
+          <div class="vi-badges"><span class="badge badge--neutral">▶ Field footage</span></div>
+          <h2 class="vi-name">${esc(it.v.title)}</h2>
+          <p class="vi-desc">${esc(it.v.description || 'General footage recorded during our data gathering on Siargao Island.')}</p>
+          <p class="vi-note">This clip shows several plants and isn’t tied to a single species in the field guide.</p>
+          <div class="vi-actions"><a class="btn btn--dark" href="explore.php">Browse all species <span aria-hidden="true">→</span></a></div>`;
+      }
+      const sp = fullSpecies(it.sp);
+      const caption = it.type === 'photo' ? it.p.caption : it.v.title;
+      const facts = [
+        ['Family', sp.family], ['Origin', sp.native === undefined ? '' : sp.native ? 'Native' : 'Introduced'],
+        ['Blooming', sp.blooming], ['Habitat', sp.habitat],
+      ].filter(([, v]) => v);
+      return `
+        <div class="vi-badges"><span class="badge badge--neutral">${icon(sp.category)}${esc(sp.category)}</span>${sp.status ? statusBadge(sp) : ''}</div>
+        <h2 class="vi-name">${esc(sp.local_name)}</h2>
+        <p class="vi-sci"><i>${esc(sp.scientific_name)}</i>${sp.common_name ? ` · ${esc(sp.common_name)}` : ''}</p>
+        ${caption ? `<p class="vi-caption">${it.type === 'photo'
+          ? '<svg viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>'
+          : '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg>'}${esc(caption)}</p>` : ''}
+        ${sp.description ? `<p class="vi-desc">${esc(sp.description)}</p>` : ''}
+        ${facts.length ? `<dl class="vi-facts">${facts.map(([k, v]) => `<div><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('')}</dl>` : ''}
+        ${(sp.municipalities || []).length ? `<div class="vi-block"><h3>Recorded in</h3><div class="tags">${sp.municipalities.map((m) => `<a class="tag" href="explore.php?municipality=${encodeURIComponent(m)}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>${esc(m)}</a>`).join('')}</div></div>` : ''}
+        ${sp.uses ? `<div class="vi-block"><h3>Uses</h3><p>${esc(sp.uses)}</p></div>` : ''}
+        <div class="vi-actions"><a class="btn btn--dark" href="${speciesUrl(sp)}">View full details <span aria-hidden="true">→</span></a></div>`;
+    }
+
+    function show(n) {
+      current = (n + list.length) % list.length;
+      const it = list[current];
+      stage.innerHTML = it.type === 'photo' ? media(it.sp, it.i, { cls: 'media--contain', plain: true }) : videoBlock(it.sp, it.v);
+      wireVideos(stage);
+      const box = stage.querySelector('.vid[data-src]');
+      if (box) startVideo(box);
+      info.innerHTML = `<div class="vi-inner">${infoPanel(it)}</div>`;
+      info.scrollTop = 0;
+      $('#lbCount').textContent = `${current + 1} / ${list.length}`;
+      const multi = list.length > 1;
+      $('#lbPrev').hidden = !multi; $('#lbNext').hidden = !multi;
+    }
+
+    function open(n) {
+      show(n);
+      lb.hidden = false;
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => lb.classList.add('is-open'));
+      $('#lightboxClose').focus({ preventScroll: true });
+    }
 
     function render(filter) {
-      const list = items.filter((it) => filter === 'all' || it.type === filter);
+      list = items.filter((it) => filter === 'all' || it.type === filter);
       grid.innerHTML = list.map((it, n) => `
-        <button type="button" class="m-item reveal ${n % 4 === 1 ? 'tall' : ''}" data-n="${items.indexOf(it)}">
+        <button type="button" class="m-item reveal ${n % 4 === 1 ? 'tall' : ''}" data-n="${n}">
           ${it.type === 'photo' ? media(it.sp, it.i, { plain: true }) : `<div class="media">${videoCover(it.sp, it.v, 'is-loaded')}</div><span class="m-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`}
           <span class="m-cap"><b>${esc(it.sp === GENERAL ? it.v.title : it.sp.local_name)}</b><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.sp === GENERAL ? it.v.description || '' : it.v.title)}</span></span>
         </button>`).join('');
@@ -507,19 +561,32 @@
     }
 
     grid.addEventListener('click', (e) => {
-      const b = e.target.closest('.m-item'); if (!b) return;
-      const it = items[Number(b.dataset.n)];
-      stage.innerHTML = it.type === 'photo' ? media(it.sp, it.i, { cls: 'media--contain', plain: true }) : videoBlock(it.sp, it.v);
-      wireVideos(stage);
-      cap.innerHTML = it.sp === GENERAL
-        ? `<div><b>${esc(it.v.title)}</b><span>${esc(it.v.description || 'Field footage')}</span></div><a href="explore.php" class="btn btn--accent btn--sm">Browse species →</a>`
-        : `<div><b>${esc(it.sp.local_name)}</b> <i>${esc(it.sp.scientific_name)}</i><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.v.title)}</span></div><a href="${speciesUrl(it.sp)}" class="btn btn--accent btn--sm">View species →</a>`;
-      lb.hidden = false; document.body.style.overflow = 'hidden';
+      const b = e.target.closest('.m-item'); if (b) open(Number(b.dataset.n));
     });
-    const close = () => { lb.hidden = true; stage.innerHTML = ''; document.body.style.overflow = ''; };
+    const close = () => {
+      lb.classList.remove('is-open');
+      stage.innerHTML = '';
+      lb.hidden = true;
+      document.body.style.overflow = '';
+    };
     $('#lightboxClose').addEventListener('click', close);
+    $('#lbPrev').addEventListener('click', () => show(current - 1));
+    $('#lbNext').addEventListener('click', () => show(current + 1));
     lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
-    document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !lb.hidden) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') show(current - 1);
+      if (e.key === 'ArrowRight') show(current + 1);
+    });
+    // swipe left/right on the picture (phones)
+    let touchX = null;
+    $('.viewer__media').addEventListener('touchstart', (e) => { touchX = e.touches[0].clientX; }, { passive: true });
+    $('.viewer__media').addEventListener('touchend', (e) => {
+      if (touchX === null) return;
+      const dx = e.changedTouches[0].clientX - touchX; touchX = null;
+      if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
+    });
 
     $('#mediaTabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) render(b.dataset.media); });
     const t = new URLSearchParams(location.search).get('type');

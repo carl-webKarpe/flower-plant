@@ -26,11 +26,23 @@
   </div>
 </section>
 
-<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true">
-  <button class="lightbox__close" id="lightboxClose" aria-label="Close">×</button>
-  <div class="lightbox__inner">
-    <div class="lightbox__stage" id="lightboxStage"></div>
-    <div class="lightbox__caption" id="lightboxCaption"></div>
+<!-- Viewer: media on the left, plant information on the right (stacked on small screens) -->
+<div class="lightbox" id="lightbox" hidden role="dialog" aria-modal="true" aria-label="Media viewer">
+  <div class="viewer" id="viewer">
+    <div class="viewer__media">
+      <div class="viewer__stage" id="lightboxStage"></div>
+      <button type="button" class="viewer__nav viewer__nav--prev" id="lbPrev" aria-label="Previous">
+        <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg>
+      </button>
+      <button type="button" class="viewer__nav viewer__nav--next" id="lbNext" aria-label="Next">
+        <svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+      <span class="viewer__count" id="lbCount"></span>
+    </div>
+    <aside class="viewer__info" id="lightboxInfo"></aside>
+    <button type="button" class="viewer__close" id="lightboxClose" aria-label="Close">
+      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
   </div>
 </div>
 

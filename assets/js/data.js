@@ -30,6 +30,14 @@ window.LUNHAW_DATA = {
       src: 'garden-tour.mp4', poster: 'garden-tour.jpg', title: 'Garden tour',
       description: 'Aglaonema, Dendrobium orchid, Dieffenbachia and sugarcane',
     },
+    {
+      src: 'ornamental-garden.mp4', poster: 'ornamental-garden.jpg', title: 'Ornamental garden',
+      description: 'Bromeliads, anthurium, fan palm and hanging plants',
+    },
+    {
+      src: 'plant-nursery.mp4', poster: 'plant-nursery.jpg', title: 'Plant nursery',
+      description: 'Potted bougainvillea and young plants in nursery bags',
+    },
   ],
 
   // Field data (PlantsInfo.docx). Real records live in the database; this copy is only used

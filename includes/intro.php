@@ -1,7 +1,7 @@
 <?php
 /**
  * Animated logo intro shown before the website.
- * Lasts about 8 seconds. Plays once per browser session (add ?intro=1 to any URL to force it, e.g. for a presentation).
+ * Lasts about 5 seconds. Plays once per browser session (add ?intro=1 to any URL to force it, e.g. for a presentation).
  * Skipped automatically for visitors who prefer reduced motion.
  */
 $introWords = [['Siargao', false], ['Flora', true]];
@@ -61,7 +61,7 @@ $letter = 0;
   (function () {
     var d = document.documentElement, intro = document.getElementById('splash');
     if (!d.classList.contains('intro-on')) { intro.remove(); return; }
-    var done = false, start = Date.now(), MIN = 8000, MAX = 11000;
+    var done = false, start = Date.now(), MIN = 5000, MAX = 8000;
     function finish() {
       if (done) return; done = true;
       intro.classList.add('is-leaving');

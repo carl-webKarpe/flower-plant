@@ -175,7 +175,10 @@
 
     const btn = box.querySelector('.vid__play');
     const v = document.createElement('video');
-    v.src = box.dataset.src; v.controls = true; v.playsInline = true; v.loop = loop;
+    v.src = box.dataset.src; v.controls = true; v.playsInline = true;
+    // if a playlist set box.onVideoEnded, play the next video when this one finishes; otherwise loop
+    v.loop = loop && !box.onVideoEnded;
+    v.addEventListener('ended', () => { if (box.onVideoEnded) box.onVideoEnded(); });
     v.muted = false;
     v.addEventListener('error', () => {
       v.remove();
@@ -361,13 +364,18 @@
     // videos
     const vids = (await API.getVideos()).map((v) => ({ sp: v.species || GENERAL, v }));
     const player = $('#videoPlayer'), vlist = $('#videoList');
-    const play = (i, clicked = false) => {
+    // how = 'clicked' (picked from the list), 'auto' (previous video finished) or undefined (first load)
+    const play = (i, how) => {
       player.innerHTML = videoBlock(vids[i].sp, vids[i].v);
+      const box = player.querySelector('.vid[data-src]');
+      // auto-next: when this video ends, play the next one (after the last, start again from the first)
+      if (box && vids.length > 1) box.onVideoEnded = () => play((i + 1) % vids.length, 'auto');
       wireVideos(player);
       autoplayOnScroll(player);
       // picked from the list = the visitor asked for it, so play right away with sound
-      const box = player.querySelector('.vid[data-src]');
-      if (clicked && box) startVideo(box);
+      if (how === 'clicked' && box) startVideo(box);
+      // previous video finished: continue straight away (with sound if the browser allows it)
+      if (how === 'auto' && box) startVideo(box, { muted: true });
       $$('li', vlist).forEach((li, j) => li.classList.toggle('is-active', i === j));
     };
     if (vids.length) {
@@ -375,7 +383,7 @@
           <span class="vl-thumb">${videoCover(sp, v, 'vl-cover')}<i>▶</i></span>
           <span class="vl-text"><b>${esc(v.title)}</b><small>${videoSubtitle(sp, v)}</small></span>
         </button></li>`).join('');
-      $$('button', vlist).forEach((b) => b.addEventListener('click', () => play(Number(b.dataset.i), true)));
+      $$('button', vlist).forEach((b) => b.addEventListener('click', () => play(Number(b.dataset.i), 'clicked')));
       play(0);
     } else {
       player.innerHTML = '<p class="muted-light">Field videos will appear here soon.</p>';
@@ -637,8 +645,14 @@
       current = (n + list.length) % list.length;
       const it = list[current];
       stage.innerHTML = it.type === 'photo' ? media(it.sp, it.i, { cls: 'media--contain', plain: true }) : videoBlock(it.sp, it.v);
-      wireVideos(stage);
       const box = stage.querySelector('.vid[data-src]');
+      // auto-next in the viewer: when a video ends, jump to the next video in the list (skipping photos)
+      if (box) {
+        const nextVideo = [...list.keys()].map((k) => (current + 1 + k) % list.length)
+          .find((k) => k !== current && list[k].type === 'video');
+        if (nextVideo !== undefined) box.onVideoEnded = () => { if (!lb.hidden) show(nextVideo); };
+      }
+      wireVideos(stage);
       if (box) startVideo(box);
       info.innerHTML = `<div class="vi-inner">${infoPanel(it)}</div>`;
       info.scrollTop = 0;

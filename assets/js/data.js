@@ -22,6 +22,8 @@ window.LUNHAW_DATA = {
     { name: "Vegetable", blurb: "Food plants from farms and home gardens" },
     { name: "Herb", blurb: "Aromatic plants for cooking and tea" },
     { name: "Ornamental", blurb: "Flowers and foliage for gardens and homes" },
+    { name: "Fruit", blurb: "Fruit trees and fruit-bearing plants" },
+    { name: "Palm", blurb: "Coconut and other palms" },
   ],
 
   // Field footage not tied to a single species (shown on the home page and in Gallery → Videos)
@@ -308,6 +310,276 @@ window.LUNHAW_DATA = {
         {
           "src": "orkid-1.jpg",
           "caption": "Dapa, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "maguey",
+      "local_name": "Maguey",
+      "common_name": "Mauritius Hemp",
+      "scientific_name": "Furcraea foetida",
+      "family": "Asparagaceae",
+      "category": "Ornamental",
+      "color": "#6f9a3a",
+      "native": false,
+      "origin": "Caribbean and northern South America",
+      "status": null,
+      "municipalities": [
+        "Del Carmen"
+      ],
+      "habitat": "Tropical and subtropical areas, especially sunny and dry places.",
+      "blooming": null,
+      "uses": "Garden decoration and fiber production.",
+      "description": "Mauritius Hemp (maguey) is a plant with long, thick, and pointed green leaves. It can grow in hot and dry places. Its leaves can be used to produce natural fibers. (Possible identification — not yet confirmed.)",
+      "photos": [
+        {
+          "src": "maguey-1.jpg",
+          "caption": "Del Carmen, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "sahod-yaman",
+      "local_name": "Sahod-Yaman",
+      "common_name": "Tree Philodendron",
+      "scientific_name": "Thaumatophyllum bipinnatifidum",
+      "family": "Araceae",
+      "category": "Ornamental",
+      "color": "#4f8a3c",
+      "native": false,
+      "origin": "South America",
+      "status": null,
+      "municipalities": [
+        "Pilar"
+      ],
+      "habitat": "Tropical forests with moist soil and partial shade.",
+      "blooming": null,
+      "uses": "Garden decoration and landscaping.",
+      "description": "Tree philodendron (sahod-yaman) has large green leaves with deep cuts along the edges. It grows well in warm places and makes gardens look beautiful.",
+      "photos": [
+        {
+          "src": "sahod-yaman-1.jpg",
+          "caption": "Pilar, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "baging-baging",
+      "local_name": "Baging-baging",
+      "common_name": "String of Nickels",
+      "scientific_name": "Dischidia nummularia",
+      "family": "Apocynaceae",
+      "category": "Ornamental",
+      "color": "#9cc46a",
+      "native": true,
+      "origin": "Southeast Asia and Australia",
+      "status": null,
+      "municipalities": [
+        "San Isidro"
+      ],
+      "habitat": "Tropical forests, usually growing on tree branches.",
+      "blooming": null,
+      "uses": "Hanging decoration and landscaping.",
+      "description": "String of nickels (baging-baging) has small, round, and light green leaves. Its long stems hang down, making it beautiful for hanging pots. (The local name may vary by place.)",
+      "photos": [
+        {
+          "src": "baging-baging-1.jpg",
+          "caption": "San Isidro, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "umbrella-plant",
+      "local_name": "Umbrella Plant",
+      "common_name": "Variegated Dwarf Umbrella Plant",
+      "scientific_name": "Heptapleurum arboricola",
+      "family": "Araliaceae",
+      "category": "Ornamental",
+      "color": "#c9c97a",
+      "native": true,
+      "origin": "Taiwan and Hainan, China",
+      "status": null,
+      "municipalities": [
+        "General Luna"
+      ],
+      "habitat": "Tropical and subtropical forests.",
+      "blooming": null,
+      "uses": "Garden decoration, landscaping, and indoor decoration.",
+      "description": "The variegated dwarf umbrella plant (formerly Schefflera arboricola) has green and creamy white leaves. Its leaves grow in groups and look like a small umbrella. It is commonly planted to make gardens and homes beautiful.",
+      "photos": [
+        {
+          "src": "umbrella-plant-1.jpg",
+          "caption": "General Luna, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "bromeliad",
+      "local_name": "Bromeliad",
+      "common_name": "Blushing Bromeliad",
+      "scientific_name": "Neoregelia carolinae",
+      "family": "Bromeliaceae",
+      "category": "Ornamental",
+      "color": "#c2506e",
+      "native": false,
+      "origin": "South America, especially Brazil",
+      "status": null,
+      "municipalities": [
+        "General Luna"
+      ],
+      "habitat": "Tropical forests and warm, humid environments.",
+      "blooming": null,
+      "uses": "Garden decoration, landscaping, and indoor decoration.",
+      "description": "Blushing bromeliad is a colorful plant with green leaves and a red or pink center. Its leaves grow in a circular shape. It is commonly used to make gardens and homes beautiful. (Possible identification — not yet confirmed.)",
+      "photos": [
+        {
+          "src": "bromeliad-1.jpg",
+          "caption": "General Luna, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "kapayas",
+      "local_name": "Kapayas",
+      "common_name": "Papaya",
+      "scientific_name": "Carica papaya",
+      "family": "Caricaceae",
+      "category": "Fruit",
+      "color": "#f0962e",
+      "native": false,
+      "origin": "Central America and southern Mexico",
+      "status": null,
+      "municipalities": [
+        "Pilar"
+      ],
+      "habitat": "Tropical and warm places.",
+      "blooming": null,
+      "uses": "Its fruit is eaten fresh and used in cooking.",
+      "description": "Papaya (kapayas) is a small tree with a straight trunk, large green leaves, and oval fruits. Its fruit is green when unripe and yellow or orange when ripe.",
+      "photos": [
+        {
+          "src": "kapayas-1.jpg",
+          "caption": "Pilar, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "bayabas",
+      "local_name": "Bayabas",
+      "common_name": "Guava",
+      "scientific_name": "Psidium guajava",
+      "family": "Myrtaceae",
+      "category": "Fruit",
+      "color": "#8fb34a",
+      "native": false,
+      "origin": "Tropical America",
+      "status": null,
+      "municipalities": [
+        "Del Carmen"
+      ],
+      "habitat": "Tropical and subtropical areas.",
+      "blooming": null,
+      "uses": "Its fruit is eaten, and its leaves are traditionally used for herbal preparations.",
+      "description": "Guava (bayabas) is a small tree with green leaves and round fruits. Its fruits can be green or yellow when ripe.",
+      "photos": [
+        {
+          "src": "bayabas-1.jpg",
+          "caption": "Del Carmen, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "dragon-fruit",
+      "local_name": "Dragon Fruit",
+      "common_name": "Dragon Fruit (Pitaya)",
+      "scientific_name": "Selenicereus undatus",
+      "family": "Cactaceae",
+      "category": "Fruit",
+      "color": "#d6336c",
+      "native": false,
+      "origin": "Central America",
+      "status": null,
+      "municipalities": [
+        "Del Carmen"
+      ],
+      "habitat": "Warm tropical and subtropical areas.",
+      "blooming": null,
+      "uses": "Its fruit is eaten fresh and used in juices and desserts.",
+      "description": "Dragon fruit is a climbing cactus with long green stems. It produces colorful fruits with white or red flesh.",
+      "photos": [
+        {
+          "src": "dragon-fruit-1.jpg",
+          "caption": "Del Carmen, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "niyog",
+      "local_name": "Niyog",
+      "common_name": "Coconut",
+      "scientific_name": "Cocos nucifera",
+      "family": "Arecaceae",
+      "category": "Palm",
+      "color": "#7f9a3e",
+      "native": true,
+      "origin": "Indo-Pacific region",
+      "status": null,
+      "municipalities": [
+        "General Luna"
+      ],
+      "habitat": "Tropical areas, especially coastal places.",
+      "blooming": null,
+      "uses": "Used for coconut water, milk, oil, food, and building materials.",
+      "description": "Coconut (niyog) is a tall palm tree with a long trunk, large leaves, and round fruits.",
+      "photos": [
+        {
+          "src": "niyog-1.jpg",
+          "caption": "General Luna, Surigao del Norte"
+        }
+      ],
+      "videos": [],
+      "date_added": "2026-11-14"
+    },
+    {
+      "id": "kawayan",
+      "local_name": "Kawayan",
+      "common_name": "Bamboo",
+      "scientific_name": "Bambusa vulgaris",
+      "family": "Poaceae",
+      "category": "Ornamental",
+      "color": "#6a9a3a",
+      "native": true,
+      "origin": "Tropical Asia",
+      "status": null,
+      "municipalities": [
+        "Pilar"
+      ],
+      "habitat": "Tropical and subtropical areas with moist soil and enough sunlight.",
+      "blooming": null,
+      "uses": "Used for building houses, making furniture, fences, baskets, and other handicrafts. It is also used for garden decoration.",
+      "description": "Bamboo (kawayan) is a fast-growing plant with tall, green, and hollow stems. It has long, narrow leaves and grows in groups. It is strong and useful for many things, such as building materials and furniture.",
+      "photos": [
+        {
+          "src": "kawayan-1.jpg",
+          "caption": "Pilar, Surigao del Norte"
         }
       ],
       "videos": [],

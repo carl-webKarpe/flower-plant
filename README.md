@@ -67,12 +67,15 @@ You can test write requests with Postman or Thunder Client.
 
 ## Field data
 
-The database holds the 10 plants gathered in Dapa, Pilar and General Luna (source: `docs/PlantsInfo.docx`),
-grouped as **Vegetable**, **Herb** and **Ornamental**, with photos in `assets/images/species/`.
+The database holds 20 plants gathered in Dapa, Del Carmen, Pilar, San Isidro and General Luna
+(sources: `docs/PlantsInfo.docx` and `docs/PlantsInfo-2.docx`), grouped as **Vegetable**, **Herb**, **Ornamental**,
+**Fruit** and **Palm**, with photos in `assets/images/species/`.
 
 - New setup: run `database/lunhaw.sql` (creates everything, including the 10 plants).
 - Existing database: run `database/update-03-field-plants.sql` once in Workbench. It adds the `origin` column,
   removes the old demo species and plant groups, and inserts the 10 plants (municipalities and the garden tour video are kept).
+- Then run `database/update-05-field-plants-batch2.sql` to add the second batch of 10 (and the Fruit and Palm groups).
+- Field videos: `database/update-04-field-videos.sql` adds the Ornamental garden and Plant nursery videos.
 
 Add more plants on the **Manage data** page (`manage.php`).
 

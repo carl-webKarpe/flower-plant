@@ -123,15 +123,60 @@
    * Start the real clip inside a .vid box (or return the one already there).
    * muted: browsers only allow autoplay when muted, so scroll-autoplay starts silent with a "Tap for sound" button.
    */
+  /* Sound on autoplay: browsers only allow sound after the visitor has clicked, tapped or pressed a key.
+     So we first try WITH sound; if the browser refuses, the video plays muted and its sound switches on
+     automatically at the visitor's first click/tap/key press anywhere on the page. */
+  const waitingForSound = new Set();
+  function unmuteWaiting() {
+    waitingForSound.forEach((v) => {
+      if (!v.isConnected) return;
+      v.muted = false;
+      v.closest('.vid')?.querySelector('.vid__unmute')?.remove();
+      if (!v.paused) v.play()?.catch(() => {});
+    });
+    waitingForSound.clear();
+  }
+  ['pointerdown', 'keydown', 'touchend'].forEach((ev) =>
+    document.addEventListener(ev, unmuteWaiting, { capture: true, passive: true }));
+
+  function addUnmuteButton(box, v) {
+    if (box.querySelector('.vid__unmute')) return;
+    const unmute = document.createElement('button');
+    unmute.type = 'button';
+    unmute.className = 'vid__unmute';
+    unmute.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m17 9 4 6m0-6-4 6"/></svg> Tap for sound';
+    unmute.addEventListener('click', () => { v.muted = false; v.play()?.catch(() => {}); unmute.remove(); });
+    v.addEventListener('volumechange', () => { if (!v.muted) unmute.remove(); });
+    box.appendChild(unmute);
+  }
+
+  /** Try to play with sound; fall back to muted (sound comes on at the first interaction). */
+  function playWithSound(box, v) {
+    v.muted = false;
+    const attempt = v.play();
+    if (!attempt) return;
+    attempt.catch((err) => {
+      if (!v.isConnected || (err && err.name !== 'NotAllowedError')) return;
+      v.muted = true;
+      v.play()?.catch(() => {});
+      waitingForSound.add(v);
+      addUnmuteButton(box, v);
+    });
+  }
+
   function startVideo(box, { muted = false, loop = true } = {}) {
     const existing = box.querySelector('video');
-    if (existing) { if (!muted) existing.muted = false; existing.play()?.catch(() => {}); return existing; }
+    if (existing) {
+      if (!muted) existing.muted = false;
+      if (muted) playWithSound(box, existing); else existing.play()?.catch(() => {});
+      return existing;
+    }
     if (box.dataset.missing) return null;
 
     const btn = box.querySelector('.vid__play');
     const v = document.createElement('video');
     v.src = box.dataset.src; v.controls = true; v.playsInline = true; v.loop = loop;
-    v.muted = muted; v.autoplay = true;
+    v.muted = false;
     v.addEventListener('error', () => {
       v.remove();
       box.dataset.missing = '1';
@@ -144,16 +189,9 @@
     v.addEventListener('play', () => { delete box.dataset.userPaused; });
     box.appendChild(v);
 
-    if (muted) {
-      const unmute = document.createElement('button');
-      unmute.type = 'button';
-      unmute.className = 'vid__unmute';
-      unmute.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="m17 9 4 6m0-6-4 6"/></svg> Tap for sound';
-      unmute.addEventListener('click', () => { v.muted = false; v.play()?.catch(() => {}); unmute.remove(); });
-      v.addEventListener('volumechange', () => { if (!v.muted) unmute.remove(); });
-      box.appendChild(unmute);
-    }
-    v.play()?.catch(() => {});
+    // muted = "started by scrolling": try with sound first, fall back to muted.
+    // otherwise the visitor clicked play, so the browser allows sound straight away.
+    if (muted) playWithSound(box, v); else v.play()?.catch(() => {});
     return v;
   }
 

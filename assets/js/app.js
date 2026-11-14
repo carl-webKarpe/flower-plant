@@ -22,6 +22,9 @@
     Tree: '<path d="M12 21v-6M8 21h8"/><path d="M12 15c-4.5 0-7-2.5-7-5.5A4.5 4.5 0 0 1 9 5a4 4 0 0 1 6 0 4.5 4.5 0 0 1 4 4.5c0 3-2.5 5.5-7 5.5z"/>',
     Palm: '<path d="M12 21c0-5 .5-9 0-12"/><path d="M12 9C9 5 5 5 3 7M12 9c3-4 7-4 9-2M12 9c-1-4-4-6-7-6M12 9c1-4 4-6 7-6"/>',
     Mangrove: '<path d="M5 9c0-3 3-5 7-5s7 2 7 5-3 4-7 4-7-1-7-4zM12 13v3M12 16c-2 0-4 2-5 5M12 16c2 0 4 2 5 5M12 16v5"/><path d="M3 21h18"/>',
+    Vegetable: '<path d="M12 8c-4 0-7 3-7 6.5S8 21 12 21s7-3 7-6.5S16 8 12 8z"/><path d="M12 8V5M12 6c-1.5-2-4-2.5-5-2 .5 1.5 2.5 2.5 5 2zM12 6c1.5-2 4-2.5 5-2-.5 1.5-2.5 2.5-5 2z"/>',
+    Herb: '<path d="M12 21V8"/><path d="M12 13c-3 0-6-2-6-6 3 0 6 2 6 6zM12 10c3 0 5-2 5-5-3 0-5 2-5 5zM12 17c2.5 0 5-1.5 5-4.5-2.5 0-5 1.5-5 4.5z"/>',
+    Ornamental: '<path d="M7 15h10l-1.5 6h-7z"/><path d="M12 15V9"/><circle cx="12" cy="6.5" r="2.5"/><path d="M12 12c-2.5 0-4-1.5-4-3.5 2.5 0 4 1.5 4 3.5zM12 11c2.5 0 4-1.5 4-3.5-2.5 0-4 1.5-4 3.5z"/>',
     'Shrub & Vine': '<path d="M4 20C6 10 14 6 20 4"/><path d="M8 14c-3 0-4-2-4-4 3 0 4 2 4 4zM12 10c0-3 2-4 4-4 0 3-2 4-4 4zM14 14c3 0 4 2 4 4-3 0-4-2-4-4z"/>',
   };
   const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.Flower}</svg>`;
@@ -252,7 +255,7 @@
     $('#heroCategory').insertAdjacentHTML('beforeend', categories.map((c) => `<option>${esc(c.name)}</option>`).join(''));
 
     // featured rotator
-    const featured = species.filter((s) => s.category !== 'Palm').slice(0, 8);
+    const featured = species.slice(0, 10);
     let idx = 0;
     const showSpecimen = () => {
       const sp = featured[idx % featured.length];
@@ -302,6 +305,7 @@
     showFeatured('All');
 
     // plant groups (bento)
+    $('#categoryGrid').dataset.count = Math.min(categories.length, 6);
     $('#categoryGrid').innerHTML = categories.map((c, i) => {
       const inCat = species.filter((s) => s.category === c.name);
       const rep = inCat[0] || { id: c.name, category: c.name, color: '#5b8a4a' };
@@ -481,9 +485,9 @@
     const facts = [
       ['Local name', esc(sp.local_name)], ['Common name', esc(sp.common_name)],
       ['Scientific name', `<i>${esc(sp.scientific_name)}</i>`], ['Family', esc(sp.family)],
-      ['Plant group', esc(sp.category)], ['Origin', sp.native ? 'Native to the Philippines' : 'Introduced / cultivated'],
+      ['Plant group', esc(sp.category)], ['Origin', esc(sp.origin || (sp.native ? 'Native to Asia' : 'Introduced'))],
       ['Blooming', esc(sp.blooming)], ['Habitat', esc(sp.habitat)],
-    ];
+    ].filter(([, v]) => v && v !== 'null');
 
     root.innerHTML = `
       <section class="detail">
@@ -574,7 +578,7 @@
       const sp = fullSpecies(it.sp);
       const caption = it.type === 'photo' ? it.p.caption : it.v.title;
       const facts = [
-        ['Family', sp.family], ['Origin', sp.native === undefined ? '' : sp.native ? 'Native' : 'Introduced'],
+        ['Family', sp.family], ['Origin', sp.origin || (sp.native === undefined ? '' : sp.native ? 'Native to Asia' : 'Introduced')],
         ['Blooming', sp.blooming], ['Habitat', sp.habitat],
       ].filter(([, v]) => v);
       return `
@@ -674,7 +678,7 @@
   /* ---------- ABOUT ---------- */
   async function about() {
     const all = await API.getSpecies();
-    const artSpecies = all.length ? all.slice(0, 4) : ['Flower', 'Mangrove', 'Orchid', 'Palm'].map((c, i) =>
+    const artSpecies = all.length ? all.slice(0, 4) : ['Ornamental', 'Vegetable', 'Herb', 'Ornamental'].map((c, i) =>
       ({ id: 'about-' + c, category: c, color: ['#d8342b', '#3f6b3a', '#c4669c', '#7f9a3e'][i], local_name: c }));
     $('#aboutArt').innerHTML = artSpecies.map((sp) => `<div>${media(sp, 0, { plain: true })}</div>`).join('');
     const live = API.source() === 'api';

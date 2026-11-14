@@ -15,9 +15,9 @@
       <div class="footer__col">
         <h4>Explore</h4>
         <a href="explore.php">All species</a>
-        <a href="explore.php?category=Flower">Flowers</a>
-        <a href="explore.php?category=Tree">Trees</a>
-        <a href="explore.php?category=Mangrove">Mangroves</a>
+        <a href="explore.php?category=Vegetable">Vegetables</a>
+        <a href="explore.php?category=Herb">Herbs</a>
+        <a href="explore.php?category=Ornamental">Ornamental plants</a>
       </div>
       <div class="footer__col">
         <h4>Media</h4>

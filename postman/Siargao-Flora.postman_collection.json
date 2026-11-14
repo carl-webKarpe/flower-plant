@@ -143,7 +143,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Every result is a Flower', () => pm.response.json().data.forEach(s => pm.expect(s.category).to.eql('Flower')));"
+                  "pm.test('Every result is Ornamental', () => pm.response.json().data.forEach(s => pm.expect(s.category).to.eql('Ornamental')));"
                 ]
               }
             }
@@ -152,7 +152,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/species.php?category=Flower",
+              "raw": "{{baseUrl}}/species.php?category=Ornamental",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -162,7 +162,7 @@
               "query": [
                 {
                   "key": "category",
-                  "value": "Flower"
+                  "value": "Ornamental"
                 }
               ]
             }
@@ -177,7 +177,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "pm.test('Every result was recorded in Del Carmen', () => pm.response.json().data.forEach(s => pm.expect(s.municipalities).to.include('Del Carmen')));"
+                  "pm.test('Every result was recorded in Dapa', () => pm.response.json().data.forEach(s => pm.expect(s.municipalities).to.include('Dapa')));"
                 ]
               }
             }
@@ -186,7 +186,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/species.php?municipality=Del Carmen",
+              "raw": "{{baseUrl}}/species.php?municipality=Dapa",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -196,7 +196,7 @@
               "query": [
                 {
                   "key": "municipality",
-                  "value": "Del Carmen"
+                  "value": "Dapa"
                 }
               ]
             }
@@ -347,7 +347,7 @@
                   "const s = pm.response.json().data;",
                   "pm.test('Returns the new species', () => {",
                   "  pm.expect(s.id).to.eql(pm.collectionVariables.get('testId'));",
-                  "  pm.expect(s.category).to.eql('Orchid');",
+                  "  pm.expect(s.category).to.eql('Ornamental');",
                   "  pm.expect(s.native).to.be.true;",
                   "});",
                   "pm.test('Saved municipalities and photos', () => {",
@@ -381,7 +381,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"postman-test-orchid\",\n  \"local_name\": \"Postman Test Orchid\",\n  \"common_name\": \"Test orchid\",\n  \"scientific_name\": \"Dendrobium postmanii\",\n  \"family\": \"Orchidaceae\",\n  \"category\": \"Orchid\",\n  \"color\": \"#c4669c\",\n  \"native\": true,\n  \"status\": \"Native\",\n  \"habitat\": \"Created by the Postman test run\",\n  \"blooming\": \"All year\",\n  \"uses\": \"Testing the REST API\",\n  \"description\": \"Temporary record created by the Postman collection. It is deleted again at the end of the run.\",\n  \"municipalities\": [\n    \"Dapa\",\n    \"General Luna\"\n  ],\n  \"photos\": [\n    {\n      \"src\": \"postman-test.jpg\",\n      \"caption\": \"Test photo\"\n    }\n  ],\n  \"videos\": []\n}",
+              "raw": "{\n  \"id\": \"postman-test-orchid\",\n  \"local_name\": \"Postman Test Orchid\",\n  \"common_name\": \"Test orchid\",\n  \"scientific_name\": \"Dendrobium postmanii\",\n  \"family\": \"Orchidaceae\",\n  \"category\": \"Ornamental\",\n  \"color\": \"#c4669c\",\n  \"native\": true,\n  \"status\": \"Native\",\n  \"habitat\": \"Created by the Postman test run\",\n  \"blooming\": \"All year\",\n  \"uses\": \"Testing the REST API\",\n  \"description\": \"Temporary record created by the Postman collection. It is deleted again at the end of the run.\",\n  \"municipalities\": [\n    \"Dapa\",\n    \"General Luna\"\n  ],\n  \"photos\": [\n    {\n      \"src\": \"postman-test.jpg\",\n      \"caption\": \"Test photo\"\n    }\n  ],\n  \"videos\": []\n}",
               "options": {
                 "raw": {
                   "language": "json"

@@ -80,8 +80,9 @@
           <label class="field"><span>Status</span><input name="status" placeholder="Native, Cultivated, Endangered…"></label>
           <label class="field"><span>Habitat</span><input name="habitat" placeholder="Where it grows"></label>
           <label class="field"><span>Blooming</span><input name="blooming" placeholder="e.g. April–June"></label>
+          <label class="field field--full"><span>Origin</span><input name="origin" placeholder="e.g. South America, Southeast Asia"></label>
           <div class="field field--row">
-            <label class="switch"><input type="checkbox" name="native"><i></i><span>Native to the Philippines</span></label>
+            <label class="switch"><input type="checkbox" name="native"><i></i><span>Native to Asia</span></label>
             <label class="color-field"><span>Colour</span><input type="color" name="color" value="#5b8a4a"></label>
           </div>
           <label class="field field--full"><span>Description</span><textarea name="description" rows="3"></textarea></label>
@@ -95,7 +96,7 @@
           <label class="field field--full"><span>Photos <small>— one per line: <code>file-name.jpg | caption</code> (file goes in assets/images/species/)</small></span>
             <textarea name="photos" rows="2" placeholder="gumamela-1.jpg | Roadside hedge, General Luna"></textarea></label>
           <label class="field field--full"><span>Videos <small>— one per line: <code>file.mp4 or YouTube link | title</code></small></span>
-            <textarea name="videos" rows="2" placeholder="https://youtu.be/XXXXXXXXXXX | Mangrove walk"></textarea></label>
+            <textarea name="videos" rows="2" placeholder="https://youtu.be/XXXXXXXXXXX | Garden walk"></textarea></label>
         </div>
 
         <p class="form-error" id="formError" hidden></p>

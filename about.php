@@ -101,9 +101,9 @@
     <div class="tester">
       <div class="tester__presets" id="testerPresets">
         <button type="button" data-url="api/species.php">All species</button>
-        <button type="button" data-url="api/species.php?id=bakhaw">One species</button>
+        <button type="button" data-url="api/species.php?id=gumamela">One species</button>
         <button type="button" data-url="api/species.php?q=hibiscus">Search</button>
-        <button type="button" data-url="api/species.php?category=Mangrove">By group</button>
+        <button type="button" data-url="api/species.php?category=Ornamental">By group</button>
         <button type="button" data-url="api/species.php?municipality=Dapa">By town</button>
         <button type="button" data-url="api/categories.php">Categories</button>
         <button type="button" data-url="api/municipalities.php">Municipalities</button>
@@ -112,7 +112,7 @@
       </div>
       <form class="tester__bar" id="testerForm">
         <span class="m-badge m-get">GET</span>
-        <input type="text" id="testerUrl" value="api/species.php?id=bakhaw" aria-label="Request URL" spellcheck="false">
+        <input type="text" id="testerUrl" value="api/species.php?id=gumamela" aria-label="Request URL" spellcheck="false">
         <button class="btn btn--accent btn--sm" type="submit">Send</button>
       </form>
       <div class="tester__meta" id="testerMeta">Press Send to make a request.</div>

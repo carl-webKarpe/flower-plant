@@ -22,6 +22,13 @@ const SPECIES_SELECT = '
     FROM species s
     JOIN categories c ON c.id = s.category_id';
 
+/** SELECT used for species; includes `origin` when the database has that column (update-03). */
+function species_select(): string
+{
+    $origin = has_column('species', 'origin') ? 's.origin' : 'NULL AS origin';
+    return str_replace('s.is_native,', "s.is_native, $origin,", SPECIES_SELECT);
+}
+
 /** Attach municipalities, photos and videos to species rows and format them for JSON. */
 function hydrate(array $rows): array
 {
@@ -61,6 +68,7 @@ function hydrate(array $rows): array
             'category'        => $r['category'],
             'color'           => $r['color'],
             'native'          => (bool) $r['is_native'],
+            'origin'          => $r['origin'],
             'status'          => $r['status'],
             'municipalities'  => array_column($munis[$pk] ?? [], 'name'),
             'habitat'         => $r['habitat'],
@@ -76,7 +84,7 @@ function hydrate(array $rows): array
 
 function find_by_slug(string $slug): ?array
 {
-    $st = db()->prepare(SPECIES_SELECT . ' WHERE s.slug = ?');
+    $st = db()->prepare(species_select() . ' WHERE s.slug = ?');
     $st->execute([$slug]);
     $row = $st->fetch();
     return $row ? hydrate([$row])[0] : null;
@@ -154,6 +162,7 @@ function column_values(array $in): array
         if (array_key_exists($key, $in)) $cols[$col] = $in[$key];
     }
     if (array_key_exists('native', $in))   $cols['is_native'] = $in['native'] ? 1 : 0;
+    if (array_key_exists('origin', $in) && has_column('species', 'origin')) $cols['origin'] = $in['origin'];
     if (array_key_exists('category', $in)) $cols['category_id'] = category_id((string) $in['category']);
     if (isset($cols['color']) && !preg_match('/^#[0-9a-fA-F]{6}$/', (string) $cols['color'])) {
         fail('color must be a hex value like #d8342b.', 422);
@@ -189,7 +198,7 @@ run(function () {
                                    JOIN municipalities m ON m.id = sm.municipality_id WHERE m.name = ?)';
             $args[] = $_GET['municipality'];
         }
-        $sql = SPECIES_SELECT . ($where ? ' WHERE ' . implode(' AND ', $where) : '') . ' ORDER BY s.local_name';
+        $sql = species_select() . ($where ? ' WHERE ' . implode(' AND ', $where) : '') . ' ORDER BY s.local_name';
         $st = $pdo->prepare($sql);
         $st->execute($args);
         $list = hydrate($st->fetchAll());

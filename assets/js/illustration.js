@@ -93,7 +93,8 @@ window.SiargaoFloraArt = (function () {
     return `<path d="M30 205 Q 100 -35, 170 205" ${L}/>${leaves}${bloom(68, 116)}${bloom(132, 104)}${bloom(100, 74)}`;
   }
 
-  const drawers = { Flower: flower, Orchid: orchid, Tree: tree, Palm: palm, Mangrove: mangrove, 'Shrub & Vine': vine };
+  const drawers = { Flower: flower, Orchid: orchid, Tree: tree, Palm: palm, Mangrove: mangrove, 'Shrub & Vine': vine,
+    Vegetable: vine, Herb: palm, Ornamental: flower };
 
   /** Returns an SVG string for a species (or any object with id, color, category). */
   function svg(sp, opts = {}) {

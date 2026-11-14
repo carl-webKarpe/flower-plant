@@ -65,12 +65,16 @@ You can test write requests with Postman or Thunder Client.
 `categories`, `municipalities`, `species`, `species_municipalities` (where each species was recorded),
 `species_photos`, `species_videos`. See `database/lunhaw.sql`.
 
-## Starting with an empty database
+## Field data
 
-The demo species have been removed. `database/lunhaw.sql` now creates only the plant groups, the municipalities and
-the garden tour video. If your database still has the old demo species, run
-`database/update-02-clear-demo-species.sql` once in Workbench (it keeps groups, towns and general videos).
-Add your real species on the **Manage data** page (`manage.php`).
+The database holds the 10 plants gathered in Dapa, Pilar and General Luna (source: `docs/PlantsInfo.docx`),
+grouped as **Vegetable**, **Herb** and **Ornamental**, with photos in `assets/images/species/`.
+
+- New setup: run `database/lunhaw.sql` (creates everything, including the 10 plants).
+- Existing database: run `database/update-03-field-plants.sql` once in Workbench. It adds the `origin` column,
+  removes the old demo species and plant groups, and inserts the 10 plants (municipalities and the garden tour video are kept).
+
+Add more plants on the **Manage data** page (`manage.php`).
 
 The Species and Gallery pages show **10 items per page** with Previous / Next and page numbers.
 

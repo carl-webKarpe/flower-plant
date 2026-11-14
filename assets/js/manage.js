@@ -129,7 +129,7 @@
     $('#formMethod').className = `m-badge ${s ? 'm-put' : 'm-post'}`;
     $('#saveBtn').textContent = s ? 'Update species' : 'Save species';
     if (s) {
-      ['local_name', 'scientific_name', 'common_name', 'family', 'category', 'status', 'habitat', 'blooming', 'description', 'uses']
+      ['local_name', 'scientific_name', 'common_name', 'family', 'category', 'status', 'habitat', 'blooming', 'origin', 'description', 'uses']
         .forEach((k) => { form.elements[k].value = s[k] || ''; });
       form.elements.native.checked = !!s.native;
       form.elements.color.value = /^#[0-9a-f]{6}$/i.test(s.color || '') ? s.color : '#5b8a4a';
@@ -152,6 +152,7 @@
       category: v('category'),
       color: v('color'),
       native: f.native.checked,
+      origin: v('origin') || null,
       status: v('status') || null,
       habitat: v('habitat') || null,
       blooming: v('blooming') || null,

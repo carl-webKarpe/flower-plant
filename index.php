@@ -13,7 +13,7 @@
     <div class="hero__copy">
       <span class="kicker kicker--glass"><span class="pulse"></span> Siargao Island · Surigao del Norte</span>
       <h1 class="hero__title">Discover the living flora of <span class="hl">Siargao Island</span></h1>
-      <p class="hero__lead">An open field guide to the flowers, trees, palms and mangroves found across the island’s
+      <p class="hero__lead">An open field guide to the vegetables, herbs, flowers and ornamental plants found across the island’s
         nine municipalities — documented with photos and field videos.</p>
 
       <form class="hero-search" action="explore.php" method="get" role="search">
@@ -30,9 +30,9 @@
       <div class="hero__popular">
         <span>Popular:</span>
         <a href="species.php?id=gumamela">Gumamela</a>
-        <a href="species.php?id=bakhaw">Bakhaw</a>
-        <a href="species.php?id=waling-waling">Waling-waling</a>
-        <a href="species.php?id=nipa">Nipa</a>
+        <a href="species.php?id=talong">Talong</a>
+        <a href="species.php?id=tanglad">Tanglad</a>
+        <a href="species.php?id=orkid">Orkid</a>
       </div>
     </div>
 
@@ -84,8 +84,8 @@
       </svg>
     </div>
     <div class="intro__body reveal">
-      <p class="lead">Siargao is famous for its waves, but behind the shoreline are mangrove forests, coastal woodlands
-        and village gardens full of species most visitors never notice. We record them first-hand so students,
+      <p class="lead">Siargao is famous for its waves, but behind the shoreline are farms, backyards
+        and village gardens full of plants most visitors never notice. We record them first-hand so students,
         locals and travellers can learn what grows here and why it matters.</p>
       <div class="features">
         <div class="feature">
@@ -131,7 +131,7 @@
         <span class="kicker">Plant groups</span>
         <h2 class="h2">Browse by group</h2>
       </div>
-      <p class="section__note">From hibiscus hedges along the road to the tidal forests of Del Carmen.</p>
+      <p class="section__note">From vegetables on the farms of Dapa to the flowering gardens of General Luna.</p>
     </div>
     <div class="bento" id="categoryGrid"></div>
   </div>
@@ -160,8 +160,8 @@
     <div class="muni-intro reveal">
       <span class="kicker">Coverage</span>
       <h2 class="h2">Recorded across nine municipalities</h2>
-      <p class="muted">Each town holds a different mix of species — from coastal vines in Santa Monica to the
-        mangrove forest of Del Carmen. Select a municipality to see its records.</p>
+      <p class="muted">Each town holds a different mix of species — from the farms of Dapa to the home gardens of
+        General Luna. Select a municipality to see its records.</p>
       <a href="explore.php" class="btn btn--dark">Explore by location <span aria-hidden="true">→</span></a>
     </div>
     <div class="muni-list" id="muniGrid"></div>

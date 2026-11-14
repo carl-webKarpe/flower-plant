@@ -87,3 +87,39 @@ the site shows an illustrated placeholder. A hero photo can go at `assets/images
 
 `index.php` (home), `explore.php` (species directory), `species.php?id={slug}` (detail),
 `gallery.php` (photos & videos), `about.php` (project + API docs). Shared header/footer in `includes/`.
+
+## Project requirements checklist
+
+| # | Requirement | Where it is |
+|---|---|---|
+| 1 | Relational database | `database/lunhaw.sql` — 6 tables linked by foreign keys (`ON DELETE CASCADE`). Diagram: **About → How the data is organized** |
+| 2 | RESTful API in PHP + MySQL | `api/` — `species.php`, `categories.php`, `municipalities.php`, `videos.php`, `index.php` (health check) |
+| 3 | GET, POST, PUT, DELETE | `api/species.php` supports all four. The website uses them on **Manage data** (`manage.php`) |
+| 4 | JSON exchange | All requests/responses are JSON. Live view: **About → Try the API live** and the **API log** on `manage.php` |
+| 5 | Website consumes its own API | Every page loads data through `assets/js/api.js` (`USE_API: true`) |
+| 6 | Tested with Postman | `postman/` — collection (24 requests, 95 automatic tests) + environment |
+| 7 | API reused by other applications | `examples/` — Plant of the Day widget (HTML/JS), Flora Report (server-side PHP), Python CLI client |
+
+## Manage data (POST / PUT / DELETE from the website)
+
+Open `manage.php` (footer → *Manage data*). Enter the `api_key` from your config file, then add, edit or delete
+species. The **API log** shows each request's method, URL, status code, JSON body and JSON response.
+
+## Testing with Postman
+
+1. In Postman: **Import** → select both files in `postman/`.
+2. Choose the **Siargao Flora - Local** environment (top right). Set `baseUrl` (default `http://localhost/flower&plant/api`)
+   and `apiKey` (must match `api_key` in your config file).
+3. Right-click the collection → **Run collection** → **Run**. All tests should pass.
+
+The CRUD folder creates a temporary species, updates it, deletes it and confirms it is gone, so your data is unchanged.
+
+## API reuse demos (`examples/`)
+
+| Demo | Technology | How it uses the API |
+|---|---|---|
+| `plant-of-the-day.html` | HTML + JavaScript | Embeddable widget; `fetch()` from the browser |
+| `php-report.php` | PHP (server side) | Calls the API over HTTP (curl), builds statistics — never touches the database |
+| `flora_client.py` | Python 3 (standard library) | `python flora_client.py`, `python flora_client.py gumamela`, `python flora_client.py --town "Del Carmen"` |
+
+Open `http://localhost/flower&plant/examples/` for an overview.

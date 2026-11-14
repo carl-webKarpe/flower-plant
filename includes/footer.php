@@ -29,6 +29,8 @@
         <a href="about.php">About Siargao Flora</a>
         <a href="about.php#method">Data gathering</a>
         <a href="about.php#api">REST API</a>
+        <a href="manage.php">Manage data</a>
+        <a href="examples/">API reuse demos</a>
       </div>
     </div>
     <div class="footer__bottom">
@@ -44,5 +46,8 @@
 <script src="<?= asset('assets/js/illustration.js') ?>"></script>
 <script src="<?= asset('assets/js/app.js') ?>"></script>
 <script src="<?= asset('assets/js/motion.js') ?>"></script>
+<?php foreach ($extraScripts ?? [] as $script): ?>
+<script src="<?= asset($script) ?>"></script>
+<?php endforeach; ?>
 </body>
 </html>

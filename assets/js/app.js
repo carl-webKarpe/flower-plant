@@ -601,6 +601,36 @@
     $('#apiStatus').innerHTML = `<span class="status-dot ${live ? 'is-live' : ''}"></span>${live
       ? 'Connected — this website is reading live data from the REST API.'
       : 'In development — the website is currently showing sample records.'}`;
+
+    // live API tester (GET only)
+    const form = $('#testerForm'), input = $('#testerUrl'), out = $('#testerOut'), meta = $('#testerMeta');
+    if (!form) return;
+    const send = async () => {
+      const url = input.value.trim().replace(/^\//, '');
+      if (!/^api\//.test(url)) { meta.innerHTML = '<span class="apilog__status is-err">Only api/… addresses can be tested here.</span>'; return; }
+      meta.textContent = 'Sending…';
+      const t0 = performance.now();
+      try {
+        const res = await fetch(url, { headers: { Accept: 'application/json' } });
+        const text = await res.text();
+        const ms = Math.round(performance.now() - t0);
+        let pretty = text;
+        try { pretty = JSON.stringify(JSON.parse(text), null, 2); } catch (e) { /* not JSON */ }
+        meta.innerHTML = `<span class="apilog__status ${res.ok ? 'is-ok' : 'is-err'}">${res.status} ${esc(res.statusText)}</span>
+          <span>${ms} ms</span><span>${(text.length / 1024).toFixed(1)} KB</span><span>${esc(res.headers.get('Content-Type') || '')}</span>`;
+        out.textContent = pretty;
+      } catch (e) {
+        meta.innerHTML = '<span class="apilog__status is-err">Network error</span> Is Apache running?';
+        out.textContent = '';
+      }
+    };
+    form.addEventListener('submit', (e) => { e.preventDefault(); send(); });
+    $('#testerPresets').addEventListener('click', (e) => {
+      const b = e.target.closest('button[data-url]'); if (!b) return;
+      $$('#testerPresets button').forEach((x) => x.classList.toggle('is-active', x === b));
+      input.value = b.dataset.url;
+      send();
+    });
   }
 
   /* ---------- boot ---------- */

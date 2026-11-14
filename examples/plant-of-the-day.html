@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<!--
+  REUSE DEMO 1 — "Plant of the Day" widget
+  A completely separate web app that does NOT share any code with the Siargao Flora website.
+  It only knows the API address and reads JSON from it with fetch().
+  Embed it on any other website with:
+    <iframe src="http://localhost/flower&plant/examples/plant-of-the-day.html" width="380" height="560" style="border:0"></iframe>
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Plant of the Day — powered by the Siargao Flora API</title>
+  <style>
+    :root { --bg: #fdf6ec; --ink: #2b2118; --muted: #8a7a6a; --accent: #e8573f; --card: #fff; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: grid; place-items: center; padding: 20px; background: var(--bg);
+      font-family: Georgia, 'Times New Roman', serif; color: var(--ink); }
+    .card { width: min(360px, 100%); background: var(--card); border-radius: 18px; overflow: hidden;
+      box-shadow: 0 20px 50px -20px rgba(80, 40, 10, .35); border: 1px solid #f0e2cf; }
+    .hero { position: relative; height: 200px; display: grid; place-items: center; overflow: hidden; }
+    .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .hero .dot { width: 110px; height: 110px; border-radius: 50%; background: rgba(255, 255, 255, .35); display: grid; place-items: center;
+      font-size: 3rem; color: #fff; font-weight: bold; text-shadow: 0 2px 8px rgba(0, 0, 0, .2); }
+    .label { position: absolute; left: 14px; top: 14px; padding: 5px 10px; border-radius: 999px; background: #fff;
+      font: 700 11px/1 system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+    .body { padding: 20px 22px 22px; }
+    h1 { margin: 0; font-size: 1.9rem; line-height: 1.1; }
+    .sci { margin: 4px 0 14px; font-style: italic; color: var(--muted); }
+    p { margin: 0 0 14px; line-height: 1.55; font-size: .98rem; }
+    .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; font: 12px system-ui, sans-serif; }
+    .meta span { padding: 4px 9px; border-radius: 999px; background: #f6ecdf; }
+    .row { display: flex; gap: 8px; }
+    button, a.btn { flex: 1; display: inline-flex; justify-content: center; align-items: center; height: 40px; border-radius: 10px;
+      font: 600 13px system-ui, sans-serif; text-decoration: none; cursor: pointer; border: 1px solid #ead9c4; background: #fff; color: var(--ink); }
+    a.btn { background: var(--ink); color: #fff; border-color: var(--ink); }
+    .foot { padding: 10px 22px; border-top: 1px dashed #ead9c4; font: 11px system-ui, sans-serif; color: var(--muted); }
+    .foot code { background: #f6ecdf; padding: 1px 5px; border-radius: 4px; }
+    .error { padding: 24px; font: 14px system-ui, sans-serif; color: #b42a16; }
+  </style>
+</head>
+<body>
+  <div class="card" id="card"><div class="body">Loading…</div></div>
+
+  <script>
+    // The ONLY connection to Siargao Flora: its public REST API.
+    const API = '../api/species.php';
+    let list = [], index = 0;
+
+    function render() {
+      const s = list[index];
+      const photo = s.photos && s.photos[0] ? s.photos[0].src : '';
+      const src = photo && !photo.includes('/') ? '../assets/images/species/' + photo : photo;
+      document.getElementById('card').innerHTML = `
+        <div class="hero" style="background:${s.color || '#5b8a4a'}">
+          <div class="dot">${s.local_name.charAt(0)}</div>
+          ${src ? `<img src="${src}" alt="" onerror="this.remove()">` : ''}
+          <span class="label">🌺 Plant of the day</span>
+        </div>
+        <div class="body">
+          <h1>${s.local_name}</h1>
+          <div class="sci">${s.scientific_name}${s.common_name ? ' · ' + s.common_name : ''}</div>
+          <p>${s.description || ''}</p>
+          <div class="meta">
+            <span>${s.category}</span>
+            <span>${s.native ? 'Native' : 'Introduced'}</span>
+            ${(s.municipalities || []).slice(0, 3).map((m) => `<span>📍 ${m}</span>`).join('')}
+          </div>
+          <div class="row">
+            <button type="button" id="next">Show another</button>
+            <a class="btn" href="../species.php?id=${encodeURIComponent(s.id)}" target="_top">Learn more</a>
+          </div>
+        </div>
+        <div class="foot">Data from <code>GET ${API}</code> · Siargao Flora REST API</div>`;
+      document.getElementById('next').onclick = () => { index = (index + 1) % list.length; render(); };
+    }
+
+    fetch(API)
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((json) => {
+        list = json.data;
+        // same plant for everyone on the same day
+        const day = Math.floor(Date.now() / 86400000);
+        index = day % list.length;
+        render();
+      })
+      .catch((err) => {
+        document.getElementById('card').innerHTML = `<div class="error">Could not load the Siargao Flora API (${err.message}).</div>`;
+      });
+  </script>
+</body>
+</html>

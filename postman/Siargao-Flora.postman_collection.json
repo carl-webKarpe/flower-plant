@@ -1,0 +1,969 @@
+{
+  "info": {
+    "name": "Siargao Flora REST API",
+    "description": "Tests for the Siargao Flora REST API (PHP + MySQL).\n\nHOW TO USE\n1. Import this collection and the \"Siargao Flora - Local\" environment.\n2. Select the environment (top-right) and check baseUrl and apiKey.\n3. Click the collection → Run → Run Siargao Flora REST API. Every request has automatic tests.\n\nThe \"3. Create, read, update, delete\" folder creates a temporary species, edits it and deletes it again, so your data is left unchanged.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Response is JSON', () => pm.response.to.have.header('Content-Type'));",
+          "pm.test('Response time under 2 seconds', () => pm.expect(pm.response.responseTime).to.be.below(2000));"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "testId",
+      "value": "postman-test-orchid"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Health check",
+      "item": [
+        {
+          "name": "API status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('API is ok and database connected', () => {",
+                  "  pm.expect(res.status).to.eql('ok');",
+                  "  pm.expect(res.database).to.eql('connected');",
+                  "});",
+                  "pm.test('Lists the endpoints', () => pm.expect(res.endpoints).to.be.an('object'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                ""
+              ]
+            },
+            "description": "Confirms PHP can reach the MySQL database."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Read data (GET)",
+      "item": [
+        {
+          "name": "List all species",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Returns a data array', () => pm.expect(res.data).to.be.an('array').that.is.not.empty);",
+                  "pm.test('count matches data length', () => pm.expect(res.count).to.eql(res.data.length));",
+                  "pm.test('Each species has the expected fields', () => {",
+                  "  res.data.forEach(s => pm.expect(s).to.include.all.keys('id','local_name','scientific_name','category','native','municipalities','photos','videos'));",
+                  "});",
+                  "pm.collectionVariables.set('firstId', res.data[0].id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get one species",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const s = pm.response.json().data;",
+                  "pm.test('Returns the requested species', () => pm.expect(s.id).to.eql(pm.collectionVariables.get('firstId')));",
+                  "pm.test('municipalities is an array of names', () => pm.expect(s.municipalities).to.be.an('array'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{firstId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{firstId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search species (q)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Every result matches \"hibiscus\"', () => res.data.forEach(s =>",
+                  "  pm.expect(JSON.stringify([s.local_name, s.common_name, s.scientific_name, s.family]).toLowerCase()).to.include('hibiscus')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?q=hibiscus",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "hibiscus"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Every result is a Flower', () => pm.response.json().data.forEach(s => pm.expect(s.category).to.eql('Flower')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?category=Flower",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Flower"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Filter by municipality",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Every result was recorded in Del Carmen', () => pm.response.json().data.forEach(s => pm.expect(s.municipalities).to.include('Del Carmen')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?municipality=Del Carmen",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "municipality",
+                  "value": "Del Carmen"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('Each category has name and species_count', () => res.data.forEach(c => {",
+                  "  pm.expect(c).to.have.property('name');",
+                  "  pm.expect(c.species_count).to.be.a('number');",
+                  "}));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/categories.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List municipalities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns the municipalities of Siargao', () => pm.expect(pm.response.json().data).to.include('General Luna'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/municipalities.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "municipalities.php"
+              ]
+            }
+          }
+        },
+        {
+          "name": "List videos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Each video has src and title', () => pm.response.json().data.forEach(v => pm.expect(v).to.include.all.keys('src','title','species')));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/videos.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "videos.php"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Create, read, update, delete (POST / PUT / DELETE)",
+      "description": "Runs in order: creates a temporary species, reads it, updates it, deletes it, then confirms it is gone.",
+      "item": [
+        {
+          "name": "Clean up old test record (if any)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (deleted) or 404 (nothing to delete)', () => pm.expect(pm.response.code).to.be.oneOf([200, 404]));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            },
+            "description": "Makes the run repeatable: removes the test species if a previous run stopped half-way. 200 or 404 are both fine."
+          }
+        },
+        {
+          "name": "Create species (POST)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201 Created', () => pm.response.to.have.status(201));",
+                  "const s = pm.response.json().data;",
+                  "pm.test('Returns the new species', () => {",
+                  "  pm.expect(s.id).to.eql(pm.collectionVariables.get('testId'));",
+                  "  pm.expect(s.category).to.eql('Orchid');",
+                  "  pm.expect(s.native).to.be.true;",
+                  "});",
+                  "pm.test('Saved municipalities and photos', () => {",
+                  "  pm.expect(s.municipalities).to.have.members(['Dapa', 'General Luna']);",
+                  "  pm.expect(s.photos[0].src).to.eql('postman-test.jpg');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"postman-test-orchid\",\n  \"local_name\": \"Postman Test Orchid\",\n  \"common_name\": \"Test orchid\",\n  \"scientific_name\": \"Dendrobium postmanii\",\n  \"family\": \"Orchidaceae\",\n  \"category\": \"Orchid\",\n  \"color\": \"#c4669c\",\n  \"native\": true,\n  \"status\": \"Native\",\n  \"habitat\": \"Created by the Postman test run\",\n  \"blooming\": \"All year\",\n  \"uses\": \"Testing the REST API\",\n  \"description\": \"Temporary record created by the Postman collection. It is deleted again at the end of the run.\",\n  \"municipalities\": [\n    \"Dapa\",\n    \"General Luna\"\n  ],\n  \"photos\": [\n    {\n      \"src\": \"postman-test.jpg\",\n      \"caption\": \"Test photo\"\n    }\n  ],\n  \"videos\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read created species (GET)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Record is stored in the database', () => pm.expect(pm.response.json().data.local_name).to.eql('Postman Test Orchid'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update species (PUT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const s = pm.response.json().data;",
+                  "pm.test('Status was updated', () => pm.expect(s.status).to.eql('Endangered'));",
+                  "pm.test('Municipalities were replaced', () => pm.expect(s.municipalities).to.eql(['Pilar']));",
+                  "pm.test('Fields not sent are unchanged', () => pm.expect(s.scientific_name).to.eql('Dendrobium postmanii'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            },
+            "description": "Only the fields you send are changed.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Endangered\",\n  \"municipalities\": [\n    \"Pilar\"\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read updated species (GET)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Update is stored in the database', () => pm.expect(pm.response.json().data.status).to.eql('Endangered'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete species (DELETE)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Confirms deletion', () => pm.expect(pm.response.json().message).to.match(/deleted/i));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Confirm it is gone (GET → 404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404 Not Found', () => pm.response.to.have.status(404));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{testId}}"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Error handling and validation",
+      "item": [
+        {
+          "name": "Unknown species → 404",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', () => pm.response.to.have.status(404));",
+                  "pm.test('Error message in JSON', () => pm.expect(pm.response.json().error).to.be.a('string'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id=does-not-exist",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "does-not-exist"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create without API key → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"local_name\": \"X\",\n  \"scientific_name\": \"Y\",\n  \"category\": \"Flower\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete with wrong API key → 401",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401 Unauthorized', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "X-API-Key",
+                "value": "wrong-key"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php?id={{firstId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "{{firstId}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Missing required field → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));",
+                  "pm.test('Says which field is missing', () => pm.expect(pm.response.json().error).to.include('scientific_name'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"local_name\": \"No scientific name\",\n  \"category\": \"Flower\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Unknown category → 422",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 422', () => pm.response.to.have.status(422));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"local_name\": \"Bad\",\n  \"scientific_name\": \"Badus\",\n  \"category\": \"Mushroom\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Duplicate species → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{firstId}}\",\n  \"local_name\": \"Duplicate\",\n  \"scientific_name\": \"Dupli catus\",\n  \"category\": \"Flower\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Invalid JSON body → 400",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"local_name\": \"broken\", ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Method not allowed → 405",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 405', () => pm.response.to.have.status(405));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/categories.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "categories.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

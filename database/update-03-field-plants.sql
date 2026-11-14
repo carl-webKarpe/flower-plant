@@ -3,13 +3,16 @@
 --  Replaces ALL existing species and plant groups with the 10 plants
 --  gathered in the field (PlantsInfo.docx), and adds the `origin` column.
 --  Keeps: municipalities and general field footage (garden tour video).
---  Run ONCE in MySQL Workbench (after update-01).
---  If you ever re-run it, remove the ALTER TABLE line first (the column already exists).
+--  Safe to run more than once.
 -- =========================================================
 USE lunhaw;
 SET NAMES utf8mb4;
 
-ALTER TABLE species ADD COLUMN origin VARCHAR(255) NULL AFTER is_native;
+-- add the `origin` column only if it is not there yet (safe to run this script more than once)
+SET @has_origin := (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'species' AND COLUMN_NAME = 'origin');
+SET @sql := IF(@has_origin = 0, 'ALTER TABLE species ADD COLUMN origin VARCHAR(255) NULL AFTER is_native', 'SELECT 1');
+PREPARE stmt FROM @sql; EXECUTE stmt; DEALLOCATE PREPARE stmt;
 
 SET SQL_SAFE_UPDATES = 0;
 DELETE FROM species;            -- also removes their towns, photos and videos (ON DELETE CASCADE)

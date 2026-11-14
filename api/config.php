@@ -15,7 +15,7 @@ if (is_file(__DIR__ . '/config.local.php')) {
 return [
     'db_host' => '127.0.0.1',
     'db_port' => 3306,          // MySQL Server default. Change if your Workbench connection uses another port.
-    'db_name' => 'lunhaw',
+    'db_name' => 'siargao_flora',
     'db_user' => 'root',
     'db_pass' => '',            // <-- put your MySQL root password here
 

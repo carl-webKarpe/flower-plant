@@ -1,87 +1,118 @@
--- =========================================================
---  Siargao Flora · MySQL database
---  Run this whole script in MySQL Workbench (lightning-bolt "Execute" button).
---  It creates the `lunhaw` database, all tables, and the 20 plants gathered in the field.
---  WARNING: re-running it drops and recreates the database.
--- =========================================================
+-- =====================================================================
+--  SIARGAO FLORA — MySQL database
+--  System Integration and Architecture · Final Project
+--
+--  Database : siargao_flora
+--  Purpose  : documents the flowers and plants found on Siargao Island,
+--             Surigao del Norte (names, classification, origin, habitat,
+--             uses, where they were recorded, photos and field videos).
+--
+--  Contents : 6 tables, 5 foreign-key relationships, 1 view,
+--             and all records collected during data gathering:
+--             20 species · 5 plant groups · 9 municipalities ·
+--             20 photos · 3 field videos
+--
+--  How to use: open this file in MySQL Workbench and click Execute (⚡).
+--  WARNING: it drops and recreates the `siargao_flora` database.
+-- =====================================================================
 
 SET NAMES utf8mb4;
 
-DROP DATABASE IF EXISTS lunhaw;
-CREATE DATABASE lunhaw CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE lunhaw;
+DROP DATABASE IF EXISTS siargao_flora;
+CREATE DATABASE siargao_flora CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE siargao_flora;
 
--- Plant groups (Flower, Tree, Mangrove, ...)
+-- ---------------------------------------------------------------------
+--  STRUCTURE
+-- ---------------------------------------------------------------------
+
+-- Plant groups used to classify species (Vegetable, Herb, Ornamental, Fruit, Palm)
 CREATE TABLE categories (
-  id     INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name   VARCHAR(50)  NOT NULL UNIQUE,
-  blurb  VARCHAR(150) NULL
-) ENGINE=InnoDB;
+  id     INT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT 'Primary key',
+  name   VARCHAR(50)   NOT NULL                 COMMENT 'Group name, e.g. Ornamental',
+  blurb  VARCHAR(150)  NULL                     COMMENT 'Short description of the group',
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_categories_name (name)
+) ENGINE=InnoDB COMMENT='Plant groups';
 
--- The nine municipalities of Siargao
+-- The nine municipalities of the Siargao island group
 CREATE TABLE municipalities (
-  id    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  name  VARCHAR(80) NOT NULL UNIQUE
-) ENGINE=InnoDB;
+  id    INT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT 'Primary key',
+  name  VARCHAR(80)   NOT NULL                 COMMENT 'Municipality name, e.g. General Luna',
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_municipalities_name (name)
+) ENGINE=InnoDB COMMENT='Municipalities of Siargao';
 
--- One row per flower / plant
+-- One row per plant / flower recorded in the field
 CREATE TABLE species (
-  id               INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  slug             VARCHAR(80)  NOT NULL UNIQUE,         -- used in URLs: species.php?id=gumamela
-  local_name       VARCHAR(100) NOT NULL,
-  common_name      VARCHAR(120) NULL,
-  scientific_name  VARCHAR(150) NOT NULL,
-  family           VARCHAR(100) NULL,
-  category_id      INT UNSIGNED NOT NULL,
-  color            CHAR(7)      NULL DEFAULT '#5b8a4a',  -- hex colour for the placeholder art
-  is_native        TINYINT(1)   NOT NULL DEFAULT 0,
-  origin           VARCHAR(255) NULL,                    -- where the plant originally comes from
-  status           VARCHAR(50)  NULL,                    -- e.g. Native, Cultivated, Endangered
-  habitat          VARCHAR(255) NULL,
-  blooming         VARCHAR(150) NULL,
-  uses             TEXT         NULL,
-  description      TEXT         NULL,
-  date_added       DATE         NOT NULL DEFAULT (CURRENT_DATE),
-  created_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at       TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  CONSTRAINT fk_species_category FOREIGN KEY (category_id) REFERENCES categories(id)
-) ENGINE=InnoDB;
+  id               INT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT 'Primary key',
+  slug             VARCHAR(80)   NOT NULL                 COMMENT 'URL identifier, e.g. gumamela (species.php?id=gumamela)',
+  local_name       VARCHAR(100)  NOT NULL                 COMMENT 'Local (Bisaya/Filipino) name',
+  common_name      VARCHAR(120)  NULL                     COMMENT 'English common name',
+  scientific_name  VARCHAR(150)  NOT NULL                 COMMENT 'Scientific (Latin) name',
+  family           VARCHAR(100)  NULL                     COMMENT 'Botanical family',
+  category_id      INT UNSIGNED  NOT NULL                 COMMENT 'FK → categories.id (plant group)',
+  color            CHAR(7)       NULL DEFAULT '#5b8a4a'   COMMENT 'Hex colour used for the website illustration',
+  is_native        TINYINT(1)    NOT NULL DEFAULT 0       COMMENT '1 = native to Asia, 0 = introduced',
+  origin           VARCHAR(255)  NULL                     COMMENT 'Where the plant originally comes from',
+  status           VARCHAR(50)   NULL                     COMMENT 'Optional status, e.g. Endangered',
+  habitat          VARCHAR(255)  NULL                     COMMENT 'Where it grows',
+  blooming         VARCHAR(150)  NULL                     COMMENT 'Blooming / fruiting season',
+  uses             TEXT          NULL                     COMMENT 'Uses and significance',
+  description      TEXT          NULL                     COMMENT 'Description of the plant',
+  date_added       DATE          NOT NULL DEFAULT (CURRENT_DATE) COMMENT 'Date the record was added',
+  created_at       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Row created',
+  updated_at       TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Row last changed',
+  PRIMARY KEY (id),
+  UNIQUE KEY uq_species_slug (slug),
+  KEY idx_species_category (category_id),
+  KEY idx_species_local_name (local_name),
+  CONSTRAINT fk_species_category FOREIGN KEY (category_id) REFERENCES categories (id)
+    ON UPDATE CASCADE ON DELETE RESTRICT
+) ENGINE=InnoDB COMMENT='Plants and flowers recorded on Siargao Island';
 
--- Where each species was recorded (many-to-many)
+-- Where each species was recorded (many-to-many: species ↔ municipalities)
 CREATE TABLE species_municipalities (
-  species_id       INT UNSIGNED NOT NULL,
-  municipality_id  INT UNSIGNED NOT NULL,
+  species_id       INT UNSIGNED  NOT NULL  COMMENT 'PK + FK → species.id',
+  municipality_id  INT UNSIGNED  NOT NULL  COMMENT 'PK + FK → municipalities.id',
   PRIMARY KEY (species_id, municipality_id),
-  CONSTRAINT fk_sm_species FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE,
-  CONSTRAINT fk_sm_muni    FOREIGN KEY (municipality_id) REFERENCES municipalities(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  KEY idx_sm_municipality (municipality_id),
+  CONSTRAINT fk_sm_species FOREIGN KEY (species_id) REFERENCES species (id)
+    ON UPDATE CASCADE ON DELETE CASCADE,
+  CONSTRAINT fk_sm_muni FOREIGN KEY (municipality_id) REFERENCES municipalities (id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='Link table: municipalities where each species was recorded';
 
--- Photos: `src` is a file name in assets/images/species/ or a full URL
+-- Photos of each species (one species → many photos)
 CREATE TABLE species_photos (
-  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  species_id  INT UNSIGNED NOT NULL,
-  src         VARCHAR(255) NOT NULL,
-  caption     VARCHAR(255) NULL,
-  sort_order  INT NOT NULL DEFAULT 0,
-  CONSTRAINT fk_photo_species FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  id          INT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT 'Primary key',
+  species_id  INT UNSIGNED  NOT NULL                 COMMENT 'FK → species.id',
+  src         VARCHAR(255)  NOT NULL                 COMMENT 'File name in assets/images/species/ or a full URL',
+  caption     VARCHAR(255)  NULL                     COMMENT 'Caption, usually where the photo was taken',
+  sort_order  INT           NOT NULL DEFAULT 0       COMMENT 'Display order (0 = main photo)',
+  PRIMARY KEY (id),
+  KEY idx_photos_species (species_id),
+  CONSTRAINT fk_photo_species FOREIGN KEY (species_id) REFERENCES species (id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='Species photos';
 
--- Videos: `src` is a file name in assets/videos/, a full URL, or a YouTube link.
--- species_id may be NULL for general field footage (e.g. a garden tour) not tied to one species.
--- `poster` is an optional cover image file name in assets/videos/.
+-- Field videos (one species → many videos; species_id is NULL for general footage)
 CREATE TABLE species_videos (
-  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  species_id   INT UNSIGNED NULL,
-  src          VARCHAR(255) NOT NULL,
-  title        VARCHAR(255) NULL,
-  description  VARCHAR(255) NULL,
-  poster       VARCHAR(255) NULL,
-  sort_order   INT NOT NULL DEFAULT 0,
-  CONSTRAINT fk_video_species FOREIGN KEY (species_id) REFERENCES species(id) ON DELETE CASCADE
-) ENGINE=InnoDB;
+  id           INT UNSIGNED  NOT NULL AUTO_INCREMENT  COMMENT 'Primary key',
+  species_id   INT UNSIGNED  NULL                     COMMENT 'FK → species.id (NULL = general field footage)',
+  src          VARCHAR(255)  NOT NULL                 COMMENT 'File name in assets/videos/, a full URL or a YouTube link',
+  title        VARCHAR(255)  NULL                     COMMENT 'Video title',
+  description  VARCHAR(255)  NULL                     COMMENT 'What the video shows',
+  poster       VARCHAR(255)  NULL                     COMMENT 'Cover image file name in assets/videos/',
+  sort_order   INT           NOT NULL DEFAULT 0       COMMENT 'Display order',
+  PRIMARY KEY (id),
+  KEY idx_videos_species (species_id),
+  CONSTRAINT fk_video_species FOREIGN KEY (species_id) REFERENCES species (id)
+    ON UPDATE CASCADE ON DELETE CASCADE
+) ENGINE=InnoDB COMMENT='Field videos';
 
 -- ---------------------------------------------------------
---  Lookup data (municipalities), plant groups and the gathered field data
+--  RECORDS: municipalities, plant groups and the data gathered in the field
 -- ---------------------------------------------------------
 INSERT INTO municipalities (name) VALUES
   ('Burgos'),
@@ -182,3 +213,34 @@ INSERT INTO species_videos (species_id, src, title, description, poster, sort_or
   (NULL, 'garden-tour.mp4', 'Garden tour', 'Aglaonema, Dendrobium orchid, Dieffenbachia and sugarcane', 'garden-tour.jpg', 0),
   (NULL, 'ornamental-garden.mp4', 'Ornamental garden', 'Bromeliads, anthurium, fan palm and hanging plants', 'ornamental-garden.jpg', 1),
   (NULL, 'plant-nursery.mp4', 'Plant nursery', 'Potted bougainvillea and young plants in nursery bags', 'plant-nursery.jpg', 2);
+
+-- ---------------------------------------------------------------------
+--  VIEW: one readable row per species (group, towns, photo count)
+--  Try it in Workbench:  SELECT * FROM species_overview;
+-- ---------------------------------------------------------------------
+CREATE VIEW species_overview AS
+SELECT s.id,
+       s.local_name,
+       s.common_name,
+       s.scientific_name,
+       s.family,
+       c.name AS plant_group,
+       CASE WHEN s.is_native = 1 THEN 'Native' ELSE 'Introduced' END AS native_or_introduced,
+       s.origin,
+       GROUP_CONCAT(DISTINCT m.name ORDER BY m.name SEPARATOR ', ') AS recorded_in,
+       (SELECT COUNT(*) FROM species_photos p WHERE p.species_id = s.id) AS photos
+FROM species s
+JOIN categories c                  ON c.id = s.category_id
+LEFT JOIN species_municipalities sm ON sm.species_id = s.id
+LEFT JOIN municipalities m          ON m.id = sm.municipality_id
+GROUP BY s.id, s.local_name, s.common_name, s.scientific_name, s.family, c.name, s.is_native, s.origin;
+
+-- ---------------------------------------------------------------------
+--  CHECK: record counts (shown in Workbench after running the file)
+-- ---------------------------------------------------------------------
+SELECT (SELECT COUNT(*) FROM species)                AS species,
+       (SELECT COUNT(*) FROM categories)             AS plant_groups,
+       (SELECT COUNT(*) FROM municipalities)         AS municipalities,
+       (SELECT COUNT(*) FROM species_municipalities) AS species_town_links,
+       (SELECT COUNT(*) FROM species_photos)         AS photos,
+       (SELECT COUNT(*) FROM species_videos)         AS videos;

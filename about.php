@@ -129,7 +129,7 @@
         <span class="kicker">Relational database</span>
         <h2 class="h2">How the data is organized</h2>
       </div>
-      <p class="section__note">Six related MySQL tables. Each fact is stored once and linked with foreign keys, so a town or
+      <p class="section__note">Database <code>siargao_flora</code>: six related MySQL tables. Each fact is stored once and linked with foreign keys, so a town or
         plant group is never duplicated.</p>
     </div>
     <div class="erd">
@@ -137,7 +137,7 @@
         <h3>species</h3>
         <ul>
           <li class="pk">id</li><li>slug <em>unique</em></li><li>local_name</li><li>common_name</li><li>scientific_name</li><li>family</li>
-          <li class="fk">category_id → categories</li><li>color</li><li>is_native</li><li>status</li><li>habitat</li><li>blooming</li>
+          <li class="fk">category_id → categories</li><li>color</li><li>is_native</li><li>origin</li><li>status</li><li>habitat</li><li>blooming</li>
           <li>uses</li><li>description</li><li>date_added</li>
         </ul>
       </div>
@@ -157,6 +157,11 @@
       </div>
     </div>
     <p class="erd__legend"><span class="pk">PK</span> primary key <span class="fk">FK</span> foreign key — deleting a species also removes its links, photos and videos (<code>ON DELETE CASCADE</code>).</p>
+    <div class="reuse-actions" style="margin-top:18px">
+      <a class="btn btn--dark btn--sm" href="docs/ERD-Siargao-Flora.png" target="_blank">View full ERD</a>
+      <a class="btn btn--outline btn--sm" href="docs/Siargao-Flora-Database-Design.pdf" target="_blank">Database design (PDF)</a>
+      <a class="btn btn--outline btn--sm" href="database/siargao_flora.sql" download>Download SQL file</a>
+    </div>
   </div>
 </section>
 

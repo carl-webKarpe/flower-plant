@@ -23,6 +23,7 @@
 <section class="section section--flush">
   <div class="container">
     <div class="masonry" id="masonry"></div>
+    <nav class="pager" id="galleryPager" aria-label="Gallery pages" hidden></nav>
   </div>
 </section>
 

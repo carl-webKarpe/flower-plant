@@ -65,6 +65,15 @@ You can test write requests with Postman or Thunder Client.
 `categories`, `municipalities`, `species`, `species_municipalities` (where each species was recorded),
 `species_photos`, `species_videos`. See `database/lunhaw.sql`.
 
+## Starting with an empty database
+
+The demo species have been removed. `database/lunhaw.sql` now creates only the plant groups, the municipalities and
+the garden tour video. If your database still has the old demo species, run
+`database/update-02-clear-demo-species.sql` once in Workbench (it keeps groups, towns and general videos).
+Add your real species on the **Manage data** page (`manage.php`).
+
+The Species and Gallery pages show **10 items per page** with Previous / Next and page numbers.
+
 ## Adding photos and videos
 
 **General field footage** (not tied to one species, e.g. the garden tour): put the file in `assets/videos/` and add a row
@@ -97,7 +106,7 @@ the site shows an illustrated placeholder. A hero photo can go at `assets/images
 | 3 | GET, POST, PUT, DELETE | `api/species.php` supports all four. The website uses them on **Manage data** (`manage.php`) |
 | 4 | JSON exchange | All requests/responses are JSON. Live view: **About → Try the API live** and the **API log** on `manage.php` |
 | 5 | Website consumes its own API | Every page loads data through `assets/js/api.js` (`USE_API: true`) |
-| 6 | Tested with Postman | `postman/` — collection (24 requests, 95 automatic tests) + environment |
+| 6 | Tested with Postman | `postman/` — collection (23 requests, 90 automatic tests) + environment |
 | 7 | API reused by other applications | `examples/` — Plant of the Day widget (HTML/JS), Flora Report (server-side PHP), Python CLI client |
 
 ## Manage data (POST / PUT / DELETE from the website)

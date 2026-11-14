@@ -70,10 +70,11 @@
       <div class="active-filters" id="activeFilters"></div>
 
       <div class="card-grid card-grid--3" id="speciesGrid"></div>
+      <nav class="pager" id="speciesPager" aria-label="Species pages" hidden></nav>
       <div class="empty" id="emptyState" hidden>
         <div class="empty__icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></div>
-        <h3>No species found</h3>
-        <p class="muted">Try another name or remove some filters. New species are added as field work continues.</p>
+        <h3 id="emptyTitle">No species found</h3>
+        <p class="muted" id="emptyText">Try another name or remove some filters. New species are added as field work continues.</p>
         <button class="btn btn--dark btn--sm" id="emptyReset" type="button">Clear all filters</button>
       </div>
     </div>

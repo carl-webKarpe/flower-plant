@@ -75,12 +75,11 @@
                 "exec": [
                   "pm.test('Status 200', () => pm.response.to.have.status(200));",
                   "const res = pm.response.json();",
-                  "pm.test('Returns a data array', () => pm.expect(res.data).to.be.an('array').that.is.not.empty);",
+                  "pm.test('Returns a data array', () => pm.expect(res.data).to.be.an('array'));",
                   "pm.test('count matches data length', () => pm.expect(res.count).to.eql(res.data.length));",
                   "pm.test('Each species has the expected fields', () => {",
                   "  res.data.forEach(s => pm.expect(s).to.include.all.keys('id','local_name','scientific_name','category','native','municipalities','photos','videos'));",
-                  "});",
-                  "pm.collectionVariables.set('firstId', res.data[0].id);"
+                  "});"
                 ]
               }
             }
@@ -95,42 +94,6 @@
               ],
               "path": [
                 "species.php"
-              ]
-            }
-          }
-        },
-        {
-          "name": "Get one species",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
-                  "const s = pm.response.json().data;",
-                  "pm.test('Returns the requested species', () => pm.expect(s.id).to.eql(pm.collectionVariables.get('firstId')));",
-                  "pm.test('municipalities is an array of names', () => pm.expect(s.municipalities).to.be.an('array'));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/species.php?id={{firstId}}",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "species.php"
-              ],
-              "query": [
-                {
-                  "key": "id",
-                  "value": "{{firstId}}"
-                }
               ]
             }
           }
@@ -419,6 +382,51 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"id\": \"postman-test-orchid\",\n  \"local_name\": \"Postman Test Orchid\",\n  \"common_name\": \"Test orchid\",\n  \"scientific_name\": \"Dendrobium postmanii\",\n  \"family\": \"Orchidaceae\",\n  \"category\": \"Orchid\",\n  \"color\": \"#c4669c\",\n  \"native\": true,\n  \"status\": \"Native\",\n  \"habitat\": \"Created by the Postman test run\",\n  \"blooming\": \"All year\",\n  \"uses\": \"Testing the REST API\",\n  \"description\": \"Temporary record created by the Postman collection. It is deleted again at the end of the run.\",\n  \"municipalities\": [\n    \"Dapa\",\n    \"General Luna\"\n  ],\n  \"photos\": [\n    {\n      \"src\": \"postman-test.jpg\",\n      \"caption\": \"Test photo\"\n    }\n  ],\n  \"videos\": []\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Create the same species again → 409",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-API-Key",
+                "value": "{{apiKey}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/species.php",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "species.php"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{testId}}\",\n  \"local_name\": \"Duplicate\",\n  \"scientific_name\": \"Dupli catus\",\n  \"category\": \"Flower\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -725,7 +733,7 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/species.php?id={{firstId}}",
+              "raw": "{{baseUrl}}/species.php?id={{testId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -735,7 +743,7 @@
               "query": [
                 {
                   "key": "id",
-                  "value": "{{firstId}}"
+                  "value": "{{testId}}"
                 }
               ]
             }
@@ -824,51 +832,6 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"local_name\": \"Bad\",\n  \"scientific_name\": \"Badus\",\n  \"category\": \"Mushroom\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          }
-        },
-        {
-          "name": "Duplicate species → 409",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 409 Conflict', () => pm.response.to.have.status(409));"
-                ]
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "X-API-Key",
-                "value": "{{apiKey}}"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/species.php",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "species.php"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"{{firstId}}\",\n  \"local_name\": \"Duplicate\",\n  \"scientific_name\": \"Dupli catus\",\n  \"category\": \"Flower\"\n}",
               "options": {
                 "raw": {
                   "language": "json"

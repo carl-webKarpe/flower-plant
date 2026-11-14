@@ -199,9 +199,55 @@
     });
   }
 
+  /* ---------- pagination (10 per page) ---------- */
+  const PER_PAGE = 10;
+
+  /** Renders "Showing 11–20 of 34 · ‹ 1 2 3 ›" into a <nav> and calls onPage(n) when a page is chosen. */
+  function renderPager(nav, total, page, onPage, noun = 'items') {
+    if (!nav) return;
+    const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+    if (!total) { nav.innerHTML = ''; nav.hidden = true; return; }
+    nav.hidden = false;
+    const from = (page - 1) * PER_PAGE + 1, to = Math.min(total, page * PER_PAGE);
+    // page numbers with gaps: 1 … 4 5 6 … 12
+    const nums = [];
+    for (let n = 1; n <= pages; n++) {
+      if (n === 1 || n === pages || Math.abs(n - page) <= 1) nums.push(n);
+      else if (nums[nums.length - 1] !== '…') nums.push('…');
+    }
+    nav.innerHTML = `
+      <p class="pager__info">Showing <b>${from}–${to}</b> of ${total} ${noun}</p>
+      ${pages > 1 ? `<div class="pager__controls">
+        <button type="button" class="pager__btn" data-page="${page - 1}" ${page <= 1 ? 'disabled' : ''} aria-label="Previous page">
+          <svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg><span>Previous</span></button>
+        ${nums.map((n) => (n === '…' ? '<span class="pager__gap">…</span>'
+          : `<button type="button" class="pager__num ${n === page ? 'is-active' : ''}" data-page="${n}" ${n === page ? 'aria-current="page"' : ''}>${n}</button>`)).join('')}
+        <button type="button" class="pager__btn" data-page="${page + 1}" ${page >= pages ? 'disabled' : ''} aria-label="Next page">
+          <span>Next</span><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+      </div>` : ''}`;
+    nav.onclick = (e) => {
+      const b = e.target.closest('button[data-page]');
+      if (!b || b.disabled) return;
+      onPage(Math.min(pages, Math.max(1, Number(b.dataset.page))));
+    };
+  }
+
+  /** Friendly message used when a list has nothing to show. */
+  const emptyBlock = (title, text) => `
+    <div class="empty empty--wide">
+      <div class="empty__icon"><svg viewBox="0 0 24 24"><path d="M12 21c0-8 1-12 7-17-1 8-3 12-7 17z"/><path d="M12 21c0-6-1-10-7-14 0 7 3 11 7 14z"/></svg></div>
+      <h3>${esc(title)}</h3><p class="muted">${esc(text)}</p>
+    </div>`;
+
+  /** Scroll so the top of a list is visible after changing page. */
+  const scrollToList = (el) => {
+    const y = el.getBoundingClientRect().top + window.scrollY - 120;
+    if (window.scrollY > y) window.scrollTo({ top: y, behavior: 'smooth' });
+  };
+
   /* ---------- HOME ---------- */
   async function home() {
-    const [species, categories, munis] = await Promise.all([API.getSpecies(), API.getCategories(), API.getMunicipalities()]);
+    const [species, categories, munis, allVideos] = await Promise.all([API.getSpecies(), API.getCategories(), API.getMunicipalities(), API.getVideos()]);
 
     $('#heroCategory').insertAdjacentHTML('beforeend', categories.map((c) => `<option>${esc(c.name)}</option>`).join(''));
 
@@ -221,13 +267,14 @@
       idx++;
     };
     if (featured.length) { showSpecimen(); setInterval(showSpecimen, 6000); }
+    else $('#heroSpecimen').hidden = true;
 
     // stats
     const stats = {
       species: species.length,
       municipalities: new Set(species.flatMap((s) => s.municipalities || [])).size,
-      categories: new Set(species.map((s) => s.category)).size,
-      videos: species.reduce((n, s) => n + (s.videos || []).length, 0),
+      categories: categories.length,
+      videos: allVideos.length,
     };
     $$('[data-stat]').forEach((el) => (el.textContent = stats[el.dataset.stat]));
     const statIO = new IntersectionObserver((en) => {
@@ -241,9 +288,12 @@
     tabs.innerHTML = tabNames.map((n, i) => `<button type="button" role="tab" class="${i ? '' : 'is-active'}" data-cat="${esc(n)}">${esc(n)}</button>`).join('');
     const showFeatured = (cat) => {
       const list = species.filter((s) => cat === 'All' || s.category === cat).slice(0, 8);
-      grid.innerHTML = list.map(card).join('');
+      grid.innerHTML = list.length ? list.map(card).join('') : emptyBlock(
+        'No species recorded yet',
+        'Our team is adding the flowers and plants gathered on Siargao Island. Check back soon.');
       observeReveal(grid);
     };
+    if (!species.length) tabs.hidden = true;
     tabs.addEventListener('click', (e) => {
       const b = e.target.closest('button'); if (!b) return;
       $$('button', tabs).forEach((x) => x.classList.toggle('is-active', x === b));
@@ -313,6 +363,7 @@
       municipality: params.get('municipality') || '',
       origin: params.get('origin') || '',
       sort: params.get('sort') || 'name',
+      page: Math.max(1, parseInt(params.get('page'), 10) || 1),
     };
     let view = 'grid';
     try { view = localStorage.getItem('siargao-flora-view') || 'grid'; } catch (e) { /* storage unavailable */ }
@@ -351,8 +402,19 @@
 
       $$('.option', catList).forEach((c) => c.classList.toggle('is-active', c.dataset.cat === state.category));
       $$('#originSeg button').forEach((b) => b.classList.toggle('is-active', b.dataset.origin === state.origin));
-      grid.innerHTML = list.map(card).join('');
+      // 10 per page
+      const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+      state.page = Math.min(state.page, pages);
+      const pageItems = list.slice((state.page - 1) * PER_PAGE, state.page * PER_PAGE);
+      grid.innerHTML = pageItems.map(card).join('');
+      renderPager($('#speciesPager'), list.length, state.page, (n) => { state.page = n; render(); scrollToList(grid); }, 'species');
+
       $('#emptyState').hidden = list.length > 0;
+      if (!all.length) {
+        $('#emptyTitle').textContent = 'No species recorded yet';
+        $('#emptyText').textContent = 'Our team is adding the flowers and plants gathered on Siargao Island. Check back soon.';
+        $('#emptyReset').hidden = true;
+      }
       $('#resultCount').innerHTML = `<b>${list.length}</b> of ${`${all.length} species`}`;
 
       const chips = [];
@@ -363,25 +425,27 @@
       $('#activeFilters').innerHTML = chips.map(([k, l]) => `<button type="button" class="filter-chip" data-clear="${k}">${esc(l)} <span>×</span></button>`).join('');
 
       const p = new URLSearchParams();
-      Object.entries(state).forEach(([k, v]) => { if (v && !(k === 'sort' && v === 'name')) p.set(k, v); });
+      Object.entries(state).forEach(([k, v]) => { if (v && !(k === 'sort' && v === 'name') && !(k === 'page' && v === 1)) p.set(k, v); });
       history.replaceState(null, '', p.toString() ? `?${p}` : location.pathname);
       observeReveal(grid);
     }
 
     const reset = () => {
-      Object.assign(state, { q: '', category: '', municipality: '', origin: '' });
+      Object.assign(state, { q: '', category: '', municipality: '', origin: '', page: 1 });
       q.value = ''; muni.value = ''; render();
     };
 
+    // any filter change goes back to page 1
     let t;
-    q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { state.q = q.value; render(); }, 150); });
-    muni.addEventListener('change', () => { state.municipality = muni.value; render(); });
-    sort.addEventListener('change', () => { state.sort = sort.value; render(); });
-    catList.addEventListener('click', (e) => { const b = e.target.closest('.option'); if (b) { state.category = b.dataset.cat; render(); } });
-    $('#originSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { state.origin = b.dataset.origin; render(); } });
+    q.addEventListener('input', () => { clearTimeout(t); t = setTimeout(() => { state.q = q.value; state.page = 1; render(); }, 150); });
+    muni.addEventListener('change', () => { state.municipality = muni.value; state.page = 1; render(); });
+    sort.addEventListener('change', () => { state.sort = sort.value; state.page = 1; render(); });
+    catList.addEventListener('click', (e) => { const b = e.target.closest('.option'); if (b) { state.category = b.dataset.cat; state.page = 1; render(); } });
+    $('#originSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { state.origin = b.dataset.origin; state.page = 1; render(); } });
     $('#activeFilters').addEventListener('click', (e) => {
       const b = e.target.closest('[data-clear]'); if (!b) return;
       state[b.dataset.clear] = '';
+      state.page = 1;
       if (b.dataset.clear === 'q') q.value = '';
       if (b.dataset.clear === 'municipality') muni.value = '';
       render();
@@ -549,9 +613,23 @@
       $('#lightboxClose').focus({ preventScroll: true });
     }
 
-    function render(filter) {
+    let filter = 'all', page = 1;
+    function render(newFilter = filter, newPage = 1) {
+      filter = newFilter;
       list = items.filter((it) => filter === 'all' || it.type === filter);
-      grid.innerHTML = list.map((it, n) => `
+      const pages = Math.max(1, Math.ceil(list.length / PER_PAGE));
+      page = Math.min(Math.max(1, newPage), pages);
+      const start = (page - 1) * PER_PAGE;
+      renderPager($('#galleryPager'), list.length, page, (n) => { render(filter, n); scrollToList(grid); },
+        filter === 'video' ? 'videos' : filter === 'photo' ? 'photos' : 'items');
+      if (!list.length) {
+        grid.innerHTML = emptyBlock(filter === 'video' ? 'No videos yet' : 'No photos yet',
+          'Photos and videos appear here as our team adds species gathered on Siargao Island.');
+        $$('#mediaTabs button').forEach((c) => c.classList.toggle('is-active', c.dataset.media === filter));
+        return;
+      }
+      // data-n is the item's position in the whole filtered list, so the viewer's arrows can cross pages
+      grid.innerHTML = list.slice(start, start + PER_PAGE).map((it, k) => ({ it, n: start + k })).map(({ it, n }) => `
         <button type="button" class="m-item reveal ${n % 4 === 1 ? 'tall' : ''}" data-n="${n}">
           ${it.type === 'photo' ? media(it.sp, it.i, { plain: true }) : `<div class="media">${videoCover(it.sp, it.v, 'is-loaded')}</div><span class="m-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>`}
           <span class="m-cap"><b>${esc(it.sp === GENERAL ? it.v.title : it.sp.local_name)}</b><span>${esc(it.type === 'photo' ? it.p.caption || '' : it.sp === GENERAL ? it.v.description || '' : it.v.title)}</span></span>
@@ -588,7 +666,7 @@
       if (Math.abs(dx) > 50) show(current + (dx < 0 ? 1 : -1));
     });
 
-    $('#mediaTabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) render(b.dataset.media); });
+    $('#mediaTabs').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) render(b.dataset.media, 1); });
     const t = new URLSearchParams(location.search).get('type');
     render(t === 'video' || t === 'photo' ? t : 'all');
   }
@@ -596,7 +674,9 @@
   /* ---------- ABOUT ---------- */
   async function about() {
     const all = await API.getSpecies();
-    $('#aboutArt').innerHTML = all.slice(0, 4).map((sp) => `<div>${media(sp, 0, { plain: true })}</div>`).join('');
+    const artSpecies = all.length ? all.slice(0, 4) : ['Flower', 'Mangrove', 'Orchid', 'Palm'].map((c, i) =>
+      ({ id: 'about-' + c, category: c, color: ['#d8342b', '#3f6b3a', '#c4669c', '#7f9a3e'][i], local_name: c }));
+    $('#aboutArt').innerHTML = artSpecies.map((sp) => `<div>${media(sp, 0, { plain: true })}</div>`).join('');
     const live = API.source() === 'api';
     $('#apiStatus').innerHTML = `<span class="status-dot ${live ? 'is-live' : ''}"></span>${live
       ? 'Connected — this website is reading live data from the REST API.'

@@ -166,7 +166,7 @@
     <div class="reuse-card">
       <span class="kicker">Testing</span>
       <h2 class="h3">Validated with Postman</h2>
-      <p>Our Postman collection sends 24 requests — every endpoint, a full create → read → update → delete cycle, and
+      <p>Our Postman collection sends 23 requests — every endpoint, a full create → read → update → delete cycle, and
         error cases (401, 404, 405, 409, 422) — with automatic tests on each response.</p>
       <ol class="steps-list">
         <li>Import <code>postman/Siargao-Flora.postman_collection.json</code> and the environment file.</li>

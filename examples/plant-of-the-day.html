@@ -79,6 +79,10 @@
       .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then((json) => {
         list = json.data;
+        if (!list.length) {
+          document.getElementById('card').innerHTML = '<div class="error" style="color:#8a7a6a">No plants have been recorded yet — check back soon.</div>';
+          return;
+        }
         // same plant for everyone on the same day
         const day = Math.floor(Date.now() / 86400000);
         index = day % list.length;

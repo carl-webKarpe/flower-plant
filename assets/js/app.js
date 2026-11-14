@@ -30,13 +30,15 @@
   const icon = (name) => `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ICONS.Flower}</svg>`;
 
   /** Line-art placeholder with the real photo layered on top; a missing photo leaves the art visible. */
+  /** Real photo when there is one; the line-art drawing only appears if the plant has no photo
+   *  (or the photo file is missing) — so it never flashes over a real photo. */
   function media(sp, photoIndex = 0, opts = {}) {
     const photo = (sp.photos || [])[photoIndex];
-    const img = photo && photo.src
-      ? `<img src="${esc(photoSrc(photo.src))}" alt="${esc(photo.caption || sp.local_name)}" loading="lazy"
-           onload="this.classList.add('is-loaded')" onerror="this.remove()">`
-      : '';
-    return `<div class="media ${opts.cls || ''}">${Art.svg(sp, { variant: photoIndex, plain: opts.plain })}${img}</div>`;
+    const art = Art.svg(sp, { variant: photoIndex, plain: opts.plain });
+    if (!(photo && photo.src)) return `<div class="media ${opts.cls || ''}">${art}</div>`;
+    return `<div class="media has-photo ${opts.cls || ''}"><div class="art-fallback">${art}</div>
+      <img src="${esc(photoSrc(photo.src))}" alt="${esc(photo.caption || sp.local_name)}" loading="lazy"
+        onerror="this.parentNode.classList.remove('has-photo'); this.remove()"></div>`;
   }
 
   function statusBadge(sp) {
@@ -99,8 +101,9 @@
     : esc(v.description || 'Field footage'));
 
   /** Cover image for a video: its poster photo if it has one, otherwise the species artwork. */
-  const videoCover = (sp, v, cls = 'vid__cover') => Art.svg(sp || GENERAL, { variant: 3, plain: true }) +
-    (v.poster ? `<img class="${cls}" src="${esc(videoSrc(v.poster))}" alt="" loading="lazy" onerror="this.remove()">` : '');
+  const videoCover = (sp, v, cls = 'vid__cover') => (v.poster
+    ? `<img class="${cls}" src="${esc(videoSrc(v.poster))}" alt="" loading="lazy" onerror="this.outerHTML = this.dataset.art" data-art="${esc(Art.svg(sp || GENERAL, { variant: 3, plain: true }))}">`
+    : Art.svg(sp || GENERAL, { variant: 3, plain: true }));
 
   /** A video block that tries the real clip and shows a friendly message if it isn't uploaded yet. */
   function videoBlock(sp, video) {

@@ -26,6 +26,7 @@
       </div>
       <div class="footer__col">
         <h4>Project</h4>
+        <a href="landing.php">Welcome page</a>
         <a href="about.php">About Siargao Flora</a>
         <a href="about.php#method">Data gathering</a>
         <a href="about.php#api">REST API</a>
